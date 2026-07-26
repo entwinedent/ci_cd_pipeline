@@ -100,7 +100,10 @@ async def ingest_metric(metric_entry: MetricEntry):
     """Ingest metric entry"""
     try:
         metric_storage.append(metric_entry.dict())
-        logger.info(f"Received metric from {metric_entry.service}: {metric_entry.metric_name} = {metric_entry.value}")
+        logger.info(
+            f"Received metric from {metric_entry.service}: "
+            f"{metric_entry.metric_name} = {metric_entry.value}"
+        )
         
         return IngestResponse(
             success=True,

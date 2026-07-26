@@ -30,10 +30,16 @@ class LogCollector:
     
     def get_logs_by_service(self, service: str, limit: int = 100) -> list:
         """Get logs for a specific service"""
-        service_logs = [log for log in self.log_buffer if log.get('service') == service]
+        service_logs = [
+            log for log in self.log_buffer
+            if log.get('service') == service
+        ]
         return service_logs[-limit:]
     
     def get_error_logs(self, limit: int = 100) -> list:
         """Get error-level logs"""
-        error_logs = [log for log in self.log_buffer if log.get('level') == 'ERROR']
+        error_logs = [
+            log for log in self.log_buffer
+            if log.get('level') == 'ERROR'
+        ]
         return error_logs[-limit:]

@@ -43,7 +43,9 @@ class WebhookHandler:
     async def _send_webhook(self, url: str, payload: Dict[str, Any]) -> None:
         """Send webhook to specified URL"""
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=10.0)
+            response = await client.post(
+                url, json=payload, timeout=10.0
+            )
             response.raise_for_status()
     
     async def _send_slack_alert(self, payload: Dict[str, Any]) -> None:
@@ -61,5 +63,7 @@ class WebhookHandler:
                 ]
             }]
         }
-        
-        await self._send_webhook(self.slack_webhook_url, slack_message)
+
+        await self._send_webhook(
+            self.slack_webhook_url, slack_message
+        )

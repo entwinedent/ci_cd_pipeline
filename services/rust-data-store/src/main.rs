@@ -35,31 +35,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Info)
         .init();
-    
+
     info!("Starting Rust Data Store service");
-    
+
     // Initialize the in-memory cache
     let cache = Arc::new(cache::InMemoryCache::new());
-    
+
     // Start background TTL cleanup task
     let cache_clone = Arc::clone(&cache);
     tokio::spawn(async move {
         cache_clone.cleanup_expired_entries().await;
     });
-    
+
     let app_state = AppState { cache };
-    
+
     let app = Router::new()
         .route("/healthz", get(health_check))
-        .route("/api/v1/data/:key", get(get_data).put(set_data).delete(delete_data))
+        .route(
+            "/api/v1/data/:key",
+            get(get_data).put(set_data).delete(delete_data),
+        )
         .layer(CorsLayer::permissive())
         .with_state(app_state);
-    
+
     let listener = tokio::net::TcpListener::bind("0.0.0.0:50051").await?;
     info!("Data Store HTTP server listening on 0.0.0.0:50051");
-    
+
     axum::serve(listener, app).await?;
-    
+
     Ok(())
 }
 
@@ -94,7 +97,9 @@ async fn set_data(
     Path(key): Path<String>,
     Json(payload): Json<SetValue>,
 ) -> Result<Json<Response>, StatusCode> {
-    state.cache.set(key, payload.value.into_bytes(), payload.ttl_seconds);
+    state
+        .cache
+        .set(key, payload.value.into_bytes(), payload.ttl_seconds);
     Ok(Json(Response {
         success: true,
         message: "Data stored successfully".to_string(),

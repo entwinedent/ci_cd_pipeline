@@ -9,7 +9,9 @@ class LaunchDarklyProvider:
     
     def __init__(self, config: LaunchDarklyConfig):
         if not config.sdk_key:
-            raise ValueError("LAUNCHDARKLY_SDK_KEY is required for LaunchDarkly provider")
+            raise ValueError(
+                "LAUNCHDARKLY_SDK_KEY is required for LaunchDarkly provider"
+            )
         
         self.config = config
         # In production, initialize the official launchdarkly-server-sdk library

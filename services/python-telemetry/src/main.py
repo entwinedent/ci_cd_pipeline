@@ -74,9 +74,12 @@ async def ingest_metrics(metric_data: MetricData):
     """Ingest metrics from services and check for anomalies"""
     try:
         is_anomaly = anomaly_detector.detect_anomaly(metric_data.dict())
-        
+
         if is_anomaly:
-            logger.warning(f"Anomaly detected in {metric_data.service}: {metric_data.metric_name}")
+            logger.warning(
+                f"Anomaly detected in {metric_data.service}: "
+                f"{metric_data.metric_name}"
+            )
             # Trigger webhook for auto-remediation
             await webhook_handler.trigger_alert(metric_data.dict())
         

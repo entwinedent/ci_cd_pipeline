@@ -39,13 +39,19 @@ class UnleashConfig:
     
     def __post_init__(self):
         if self.url is None:
-            self.url = os.getenv("UNLEASH_URL", "http://localhost:4242")
+            self.url = os.getenv(
+                "UNLEASH_URL", "http://localhost:4242"
+            )
         if self.api_token is None:
             self.api_token = os.getenv("UNLEASH_API_TOKEN", "")
         if self.app_name is None:
-            self.app_name = os.getenv("UNLEASH_APP_NAME", "ci-cd-pipeline")
+            self.app_name = os.getenv(
+                "UNLEASH_APP_NAME", "ci-cd-pipeline"
+            )
         if self.environment is None:
-            self.environment = os.getenv("UNLEASH_ENVIRONMENT", "development")
+            self.environment = os.getenv(
+                "UNLEASH_ENVIRONMENT", "development"
+            )
 
 
 @dataclass
@@ -59,9 +65,13 @@ class LaunchDarklyConfig:
         if self.sdk_key is None:
             self.sdk_key = os.getenv("LAUNCHDARKLY_SDK_KEY", "")
         if self.app_name is None:
-            self.app_name = os.getenv("LAUNCHDARKLY_APP_NAME", "ci-cd-pipeline")
+            self.app_name = os.getenv(
+                "LAUNCHDARKLY_APP_NAME", "ci-cd-pipeline"
+            )
         if self.environment is None:
-            self.environment = os.getenv("LAUNCHDARKLY_ENVIRONMENT", "development")
+            self.environment = os.getenv(
+                "LAUNCHDARKLY_ENVIRONMENT", "development"
+            )
 
 
 @dataclass
@@ -78,10 +88,10 @@ class Config:
                 self.provider = ProviderType(provider_str)
             except ValueError:
                 self.provider = ProviderType.UNLEASH
-        
+
         if self.unleash is None:
             self.unleash = UnleashConfig()
-        
+
         if self.launchdarkly is None:
             self.launchdarkly = LaunchDarklyConfig()
 

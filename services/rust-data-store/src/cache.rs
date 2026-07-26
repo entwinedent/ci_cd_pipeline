@@ -13,10 +13,10 @@ pub struct CacheEntry {
 pub struct InMemoryCache {
     // Primary key-value store using DashMap for lock-free concurrent access
     store: DashMap<String, CacheEntry>,
-    
+
     // Time-series ring buffer for metrics (fixed capacity)
     metrics: Arc<RwLock<VecDeque<MetricPoint>>>,
-    
+
     // TTL expiration tracking (simplified - in production would use binary heap)
     _ttl_entries: Arc<RwLock<Vec<(String, Instant)>>>,
 }
@@ -37,22 +37,19 @@ impl InMemoryCache {
             _ttl_entries: Arc::new(RwLock::new(Vec::new())),
         }
     }
-    
+
     pub fn set(&self, key: String, value: Vec<u8>, ttl_seconds: Option<i64>) {
         let expires_at = ttl_seconds.map(|secs| Instant::now() + Duration::from_secs(secs as u64));
-        
-        let entry = CacheEntry {
-            value,
-            expires_at,
-        };
-        
+
+        let entry = CacheEntry { value, expires_at };
+
         self.store.insert(key.clone(), entry);
-        
+
         // Record metric (fire and forget)
         #[allow(clippy::let_underscore_future)]
         let _ = self.record_metric("SET".to_string(), key.clone());
     }
-    
+
     pub fn get(&self, key: &str) -> Option<Vec<u8>> {
         if let Some(entry) = self.store.get(key) {
             // Check if expired
@@ -67,7 +64,7 @@ impl InMemoryCache {
         }
         None
     }
-    
+
     pub fn delete(&self, key: &str) -> bool {
         let removed = self.store.remove(key).is_some();
         if removed {
@@ -76,15 +73,15 @@ impl InMemoryCache {
         }
         removed
     }
-    
+
     pub async fn cleanup_expired_entries(&self) {
         let mut interval = tokio::time::interval(Duration::from_secs(60));
-        
+
         loop {
             interval.tick().await;
-            
+
             let mut keys_to_remove = Vec::new();
-            
+
             for entry in self.store.iter() {
                 if let Some(expires_at) = entry.expires_at {
                     if Instant::now() > expires_at {
@@ -92,13 +89,13 @@ impl InMemoryCache {
                     }
                 }
             }
-            
+
             for key in keys_to_remove {
                 self.store.remove(&key);
             }
         }
     }
-    
+
     async fn record_metric(&self, operation: String, key: String) {
         let mut metrics = self.metrics.write().await;
         let point = MetricPoint {
@@ -106,14 +103,14 @@ impl InMemoryCache {
             operation,
             key,
         };
-        
+
         if metrics.len() >= 1000 {
             metrics.pop_front();
         }
-        
+
         metrics.push_back(point);
     }
-    
+
     #[allow(dead_code)]
     pub async fn get_metrics(&self) -> Vec<MetricPoint> {
         let metrics = self.metrics.read().await;
