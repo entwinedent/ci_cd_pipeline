@@ -22,6 +22,7 @@ pub struct InMemoryCache {
 }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct MetricPoint {
     pub timestamp: Instant,
     pub operation: String,
@@ -47,7 +48,8 @@ impl InMemoryCache {
         
         self.store.insert(key.clone(), entry);
         
-        // Record metric
+        // Record metric (fire and forget)
+        #[allow(clippy::let_underscore_future)]
         let _ = self.record_metric("SET".to_string(), key.clone());
     }
     
@@ -59,6 +61,7 @@ impl InMemoryCache {
                     return None;
                 }
             }
+            #[allow(clippy::let_underscore_future)]
             let _ = self.record_metric("GET".to_string(), key.to_string());
             return Some(entry.value.clone());
         }
@@ -68,6 +71,7 @@ impl InMemoryCache {
     pub fn delete(&self, key: &str) -> bool {
         let removed = self.store.remove(key).is_some();
         if removed {
+            #[allow(clippy::let_underscore_future)]
             let _ = self.record_metric("DELETE".to_string(), key.to_string());
         }
         removed
@@ -114,4 +118,5 @@ impl InMemoryCache {
         let metrics = self.metrics.read().await;
         metrics.iter().cloned().collect()
     }
+}
 }

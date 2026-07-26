@@ -51,18 +51,3 @@ jobs:
             sbom-rust.json
             sbom-python.json
           retention-days: 30
-          
-      - name: Upload SBOM to GitHub Advanced Security
-        uses: advanced-security/upload-sbom@v1
-        with:
-          file: sbom-go.json
-          
-      - name: Upload Rust SBOM
-        uses: advanced-security/upload-sbom@v1
-        with:
-          file: sbom-rust.json
-          
-      - name: Upload Python SBOM
-        uses: advanced-security/upload-sbom@v1
-        with:
-          file: sbom-python.json

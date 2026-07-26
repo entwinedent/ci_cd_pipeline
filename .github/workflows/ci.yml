@@ -91,7 +91,7 @@ jobs:
           
       - name: Run tests
         working-directory: services/python-telemetry
-        run: pytest src/ -v
+        run: pytest tests/ -v
         
       - name: Check formatting
         working-directory: services/python-telemetry

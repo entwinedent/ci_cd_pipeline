@@ -2,7 +2,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::Json,
-    routing::{get, put, delete},
+    routing::{delete, get, put},
     Router,
 };
 use log::info;
