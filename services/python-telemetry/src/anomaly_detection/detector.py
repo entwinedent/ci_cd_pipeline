@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class AnomalyDetector:
     def __init__(self, window_size: int = 100, threshold_std: float = 3.0):
-        self.metric_history: Dict[str, Dict[str, deque]] = {}  # service -> metric_name -> deque of values
+        self.metric_history: Dict[str, deque] = {}  # service:metric_name -> deque of values
         self.window_size = window_size
         self.threshold_std = threshold_std
         self.detected_anomalies: deque[Dict[str, Any]] = deque(maxlen=1000)
@@ -19,19 +19,24 @@ class AnomalyDetector:
         service = metric_data.get('service', 'unknown')
         metric_name = metric_data.get('metric_name', 'unknown')
         value = metric_data.get('value', 0.0)
-        
+
+        # Ensure value is numeric
+        if not isinstance(value, (int, float)):
+            logger.warning(f"Non-numeric value {value} for metric {metric_name}")
+            return False
+
         # Initialize history for this metric if needed
         key = f"{service}:{metric_name}"
         if key not in self.metric_history:
             self.metric_history[key] = deque(maxlen=self.window_size)
-        
+
         history = self.metric_history[key]
-        
+
         # Need at least some data points for anomaly detection
         if len(history) < 10:
-            history.append(value)
+            history.append(float(value))
             return False
-        
+
         # Calculate statistics using Python's statistics module
         values = list(history)
         try:
@@ -39,19 +44,19 @@ class AnomalyDetector:
             std = statistics.stdev(values)
         except statistics.StatisticsError:
             # Not enough variance or data points
-            history.append(value)
+            history.append(float(value))
             return False
-        
+
         # Z-score based anomaly detection
         if std > 0:
-            z_score = abs(value - mean) / std
+            z_score = abs(float(value) - mean) / std
             is_anomaly = z_score > self.threshold_std
         else:
             is_anomaly = False
-        
+
         # Add to history
-        history.append(value)
-        
+        history.append(float(value))
+
         # Record anomaly if detected
         if is_anomaly:
             anomaly_record = {
@@ -65,7 +70,7 @@ class AnomalyDetector:
             }
             self.detected_anomalies.append(anomaly_record)
             logger.warning(f"Anomaly detected: {anomaly_record}")
-        
+
         return is_anomaly
     
     def get_recent_anomalies(self, limit: int = 100) -> List[Dict[str, Any]]:

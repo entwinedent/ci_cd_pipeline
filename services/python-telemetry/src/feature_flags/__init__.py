@@ -57,9 +57,9 @@ class UnleashConfig:
 @dataclass
 class LaunchDarklyConfig:
     """LaunchDarkly configuration."""
-    sdk_key: str = None
-    app_name: str = None
-    environment: str = None
+    sdk_key: Optional[str] = None
+    app_name: Optional[str] = None
+    environment: Optional[str] = None
     
     def __post_init__(self):
         if self.sdk_key is None:
@@ -100,12 +100,14 @@ def create_provider(config: Optional[Config] = None) -> FeatureFlagProvider:
     """Create a feature flag provider based on configuration."""
     if config is None:
         config = Config()
-    
+
     if config.provider == ProviderType.UNLEASH:
         from .unleash import UnleashProvider
+        assert config.unleash is not None
         return UnleashProvider(config.unleash)
     elif config.provider == ProviderType.LAUNCHDARKLY:
         from .launchdarkly import LaunchDarklyProvider
+        assert config.launchdarkly is not None
         return LaunchDarklyProvider(config.launchdarkly)
     else:
         raise ValueError(f"Unknown provider type: {config.provider}")
