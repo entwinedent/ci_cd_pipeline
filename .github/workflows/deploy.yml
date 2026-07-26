@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
   build-and-push:
@@ -86,29 +87,19 @@ jobs:
       - name: Sign Rust image with Cosign
         run: |
           cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:latest
-        env:
-          COSIGN_EXPERIMENTAL: "true"
           
       - name: Sign Python image with Cosign
         run: |
           cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:latest
-        env:
-          COSIGN_EXPERIMENTAL: "true"
           
       - name: Verify Go image signature
         run: |
           cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:latest
-        env:
-          COSIGN_EXPERIMENTAL: "true"
           
       - name: Verify Rust image signature
         run: |
           cosign verify ghcr.io/${{ github.repository }}/rust-data-store:latest
-        env:
-          COSIGN_EXPERIMENTAL: "true"
           
       - name: Verify Python image signature
         run: |
           cosign verify ghcr.io/${{ github.repository }}/python-telemetry:latest
-        env:
-          COSIGN_EXPERIMENTAL: "true"
