@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   security-events: write
+  issues: write
 
 jobs:
   secret-scan:
@@ -157,3 +158,42 @@ jobs:
           name: snyk-results
           path: snyk-report.sarif
           retention-days: 30
+
+  zap-scan:
+    name: OWASP ZAP Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: |
+          docker build -t go-api-gateway:test services/go-api-gateway
+          docker build -t rust-data-store:test services/rust-data-store
+          docker build -t python-telemetry:test services/python-telemetry
+        timeout-minutes: 10
+
+      - name: Start services
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+        timeout-minutes: 5
+
+      - name: Wait for services to be ready
+        run: |
+          timeout 60 bash -c 'until curl -s http://localhost:8080/healthz; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8000/healthz; do sleep 2; done'
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'http://localhost:8080'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+        continue-on-error: true
+
+      - name: Upload ZAP results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-results
+          path: report_html.html
+          retention-days: 7

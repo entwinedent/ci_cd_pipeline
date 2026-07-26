@@ -1,6 +1,9 @@
 import { Pact } from '@pact-foundation/pact';
-import { like, regex } from '@pact-foundation/pact/dsl/matchers';
+import { Matchers } from '@pact-foundation/pact';
 import path from 'path';
+import http from 'http';
+
+const { like } = Matchers;
 
 const provider = new Pact({
   consumer: 'go-api-gateway',
@@ -8,7 +11,7 @@ const provider = new Pact({
   port: 50051,
   log: path.resolve(process.cwd(), 'logs', 'pact.log'),
   dir: path.resolve(process.cwd(), 'pacts'),
-  logLevel: 'INFO',
+  logLevel: 'info',
 });
 
 describe('Go API Gateway Consumer Contract Tests', () => {
@@ -33,24 +36,46 @@ describe('Go API Gateway Consumer Contract Tests', () => {
           method: 'POST',
           path: '/v1/data',
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
           body: {
             key: like('test-key'),
-            value: like(Buffer.from('test-value')),
+            value: like('test-value'),
             ttl_seconds: like(3600),
           },
         },
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
           body: {
             success: true,
             message: like('Value stored successfully'),
           },
         },
+      });
+
+      // Make the actual request
+      const options = {
+        hostname: 'localhost',
+        port: 50051,
+        path: '/v1/data',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      await new Promise((resolve, reject) => {
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => resolve(data));
+        });
+        req.on('error', reject);
+        req.write(JSON.stringify({ key: 'test-key', value: 'test-value', ttl_seconds: 3600 }));
+        req.end();
       });
     });
 
@@ -60,22 +85,43 @@ describe('Go API Gateway Consumer Contract Tests', () => {
         uponReceiving: 'a request to get data',
         withRequest: {
           method: 'GET',
-          path: regex('/v1/data/[a-zA-Z0-9-]+', '/v1/data/test-key'),
+          path: '/v1/data/test-key',
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
         },
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
           body: {
-            value: like(Buffer.from('test-value')),
+            value: like('test-value'),
             found: true,
             message: like('Value retrieved successfully'),
           },
         },
+      });
+
+      // Make the actual request
+      const options = {
+        hostname: 'localhost',
+        port: 50051,
+        path: '/v1/data/test-key',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      await new Promise((resolve, reject) => {
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => resolve(data));
+        });
+        req.on('error', reject);
+        req.end();
       });
     });
 
@@ -85,21 +131,42 @@ describe('Go API Gateway Consumer Contract Tests', () => {
         uponReceiving: 'a request to delete data',
         withRequest: {
           method: 'DELETE',
-          path: regex('/v1/data/[a-zA-Z0-9-]+', '/v1/data/test-key'),
+          path: '/v1/data/test-key',
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
         },
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
           body: {
             success: true,
             message: like('Value deleted successfully'),
           },
         },
+      });
+
+      // Make the actual request
+      const options = {
+        hostname: 'localhost',
+        port: 50051,
+        path: '/v1/data/test-key',
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      await new Promise((resolve, reject) => {
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => resolve(data));
+        });
+        req.on('error', reject);
+        req.end();
       });
     });
 
@@ -111,19 +178,40 @@ describe('Go API Gateway Consumer Contract Tests', () => {
           method: 'GET',
           path: '/v1/health',
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
         },
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': 'application/grpc',
+            'Content-Type': 'application/json',
           },
           body: {
             healthy: true,
             message: like('Service is healthy'),
           },
         },
+      });
+
+      // Make the actual request
+      const options = {
+        hostname: 'localhost',
+        port: 50051,
+        path: '/v1/health',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      await new Promise((resolve, reject) => {
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => resolve(data));
+        });
+        req.on('error', reject);
+        req.end();
       });
     });
   });

@@ -1,0 +1,90 @@
+{
+  "consumer": {
+    "name": "go-api-gateway"
+  },
+  "interactions": [
+    {
+      "description": "a request to delete data",
+      "providerState": "data exists for key",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "method": "DELETE",
+        "path": "/v1/data/test-key"
+      },
+      "response": {
+        "body": {
+          "message": "Value deleted successfully",
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to set data",
+      "providerState": "data store is available",
+      "request": {
+        "body": {
+          "key": "test-key",
+          "ttl_seconds": 3600,
+          "value": "test-value"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          },
+          "$.body.ttl_seconds": {
+            "match": "type"
+          },
+          "$.body.value": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "message": "Value stored successfully",
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "10.4.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.0",
+      "models": "1.0.4"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "rust-data-store"
+  }
+}

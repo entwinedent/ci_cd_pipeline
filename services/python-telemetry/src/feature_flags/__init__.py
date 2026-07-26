@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 class ProviderType(Enum):
     """Feature flag provider types."""
+
     UNLEASH = "unleash"
     LAUNCHDARKLY = "launchdarkly"
 
@@ -15,15 +16,15 @@ class ProviderType(Enum):
 @runtime_checkable
 class FeatureFlagProvider(Protocol):
     """Protocol for feature flag providers."""
-    
+
     def is_enabled(self, flag_name: str, default_value: bool = False) -> bool:
         """Check if a feature flag is enabled."""
         ...
-    
+
     def get_variant(self, flag_name: str, default_value: str = "") -> str:
         """Get the variant for a feature flag."""
         ...
-    
+
     def close(self) -> None:
         """Close the provider connection."""
         ...
@@ -32,55 +33,48 @@ class FeatureFlagProvider(Protocol):
 @dataclass
 class UnleashConfig:
     """Unleash configuration."""
+
     url: Optional[str] = None
     api_token: Optional[str] = None
     app_name: Optional[str] = None
     environment: Optional[str] = None
-    
+
     def __post_init__(self):
         if self.url is None:
-            self.url = os.getenv(
-                "UNLEASH_URL", "http://localhost:4242"
-            )
+            self.url = os.getenv("UNLEASH_URL", "http://localhost:4242")
         if self.api_token is None:
             self.api_token = os.getenv("UNLEASH_API_TOKEN", "")
         if self.app_name is None:
-            self.app_name = os.getenv(
-                "UNLEASH_APP_NAME", "ci-cd-pipeline"
-            )
+            self.app_name = os.getenv("UNLEASH_APP_NAME", "ci-cd-pipeline")
         if self.environment is None:
-            self.environment = os.getenv(
-                "UNLEASH_ENVIRONMENT", "development"
-            )
+            self.environment = os.getenv("UNLEASH_ENVIRONMENT", "development")
 
 
 @dataclass
 class LaunchDarklyConfig:
     """LaunchDarkly configuration."""
+
     sdk_key: Optional[str] = None
     app_name: Optional[str] = None
     environment: Optional[str] = None
-    
+
     def __post_init__(self):
         if self.sdk_key is None:
             self.sdk_key = os.getenv("LAUNCHDARKLY_SDK_KEY", "")
         if self.app_name is None:
-            self.app_name = os.getenv(
-                "LAUNCHDARKLY_APP_NAME", "ci-cd-pipeline"
-            )
+            self.app_name = os.getenv("LAUNCHDARKLY_APP_NAME", "ci-cd-pipeline")
         if self.environment is None:
-            self.environment = os.getenv(
-                "LAUNCHDARKLY_ENVIRONMENT", "development"
-            )
+            self.environment = os.getenv("LAUNCHDARKLY_ENVIRONMENT", "development")
 
 
 @dataclass
 class Config:
     """Feature flag configuration."""
+
     provider: Optional[ProviderType] = None
     unleash: Optional[UnleashConfig] = None
     launchdarkly: Optional[LaunchDarklyConfig] = None
-    
+
     def __post_init__(self):
         if self.provider is None:
             provider_str = os.getenv("FEATURE_FLAG_PROVIDER", "unleash")
@@ -103,10 +97,12 @@ def create_provider(config: Optional[Config] = None) -> FeatureFlagProvider:
 
     if config.provider == ProviderType.UNLEASH:
         from .unleash import UnleashProvider
+
         assert config.unleash is not None
         return UnleashProvider(config.unleash)
     elif config.provider == ProviderType.LAUNCHDARKLY:
         from .launchdarkly import LaunchDarklyProvider
+
         assert config.launchdarkly is not None
         return LaunchDarklyProvider(config.launchdarkly)
     else:

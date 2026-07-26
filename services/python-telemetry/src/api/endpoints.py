@@ -43,19 +43,13 @@ metric_storage: list[Dict[str, Any]] = []
 @app.get("/healthz", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
-    return HealthResponse(
-        status="healthy",
-        timestamp=datetime.utcnow().isoformat()
-    )
+    return HealthResponse(status="healthy", timestamp=datetime.utcnow().isoformat())
 
 
 @app.get("/readyz", response_model=HealthResponse)
 async def readiness_check():
     """Readiness check endpoint"""
-    return HealthResponse(
-        status="ready",
-        timestamp=datetime.utcnow().isoformat()
-    )
+    return HealthResponse(status="ready", timestamp=datetime.utcnow().isoformat())
 
 
 @app.post("/api/v1/logs", response_model=IngestResponse)
@@ -65,24 +59,19 @@ async def ingest_log(log_entry: LogEntry):
         log_storage.append(log_entry.dict())
         logger.info(f"Received log from {log_entry.service}: {log_entry.message}")
 
-        return IngestResponse(
-            success=True,
-            message="Log ingested successfully"
-        )
+        return IngestResponse(success=True, message="Log ingested successfully")
     except Exception as e:
         logger.error(f"Failed to ingest log: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to ingest log: {str(e)}"
+            detail=f"Failed to ingest log: {str(e)}",
         )
 
 
 @app.get("/api/v1/logs/{service}")
 async def get_logs(service: str, limit: int = 100):
     """Retrieve logs for a specific service"""
-    service_logs = [
-        log for log in log_storage if log.get("service") == service
-    ]
+    service_logs = [log for log in log_storage if log.get("service") == service]
     return service_logs[-limit:]
 
 
@@ -95,23 +84,22 @@ async def ingest_metric(metric_entry: MetricEntry):
             f"Received metric from {metric_entry.service}: "
             f"{metric_entry.metric_name} = {metric_entry.value}"
         )
-        
-        return IngestResponse(
-            success=True,
-            message="Metric ingested successfully"
-        )
+
+        return IngestResponse(success=True, message="Metric ingested successfully")
     except Exception as e:
         logger.error(f"Failed to ingest metric: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to ingest metric: {str(e)}"
+            detail=f"Failed to ingest metric: {str(e)}",
         )
 
 
 @app.get("/api/v1/metrics/{service}")
 async def get_metrics(service: str, time_range: str = "1h"):
     """Retrieve metrics for a specific service"""
-    service_metrics = [metric for metric in metric_storage if metric.get("service") == service]
+    service_metrics = [
+        metric for metric in metric_storage if metric.get("service") == service
+    ]
     return service_metrics
 
 
@@ -119,7 +107,7 @@ async def send_anomaly_alert(service: str, anomalies: list):
     """Send anomaly alert via webhook"""
     import os
     import httpx
-    
+
     webhook_url = os.getenv("SLACK_WEBHOOK_URL")
     if webhook_url:
         try:
@@ -131,10 +119,10 @@ async def send_anomaly_alert(service: str, anomalies: list):
                         "attachments": [
                             {
                                 "text": f"Anomalies: {', '.join(anomalies)}",
-                                "color": "#ff0000"
+                                "color": "#ff0000",
                             }
-                        ]
-                    }
+                        ],
+                    },
                 )
         except Exception as e:
             logger.error(f"Failed to send webhook alert: {e}")

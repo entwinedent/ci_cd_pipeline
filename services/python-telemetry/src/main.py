@@ -11,7 +11,7 @@ from src.api.webhook import WebhookHandler
 # Configure logging
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO").upper(),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -82,11 +82,11 @@ async def ingest_metrics(metric_data: MetricData):
             )
             # Trigger webhook for auto-remediation
             await webhook_handler.trigger_alert(metric_data.dict())
-        
+
         return {
             "status": "success",
             "anomaly_detected": is_anomaly,
-            "message": "Metric processed successfully"
+            "message": "Metric processed successfully",
         }
     except Exception as e:
         logger.error(f"Failed to process metric: {e}")
