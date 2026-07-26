@@ -94,12 +94,18 @@ jobs:
           
       - name: Verify Go image signature
         run: |
-          cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:latest
-          
+          cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:latest \
+            --certificate-identity-regexp "https://github.com/${{ github.repository }}/.github/workflows/deploy.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+
       - name: Verify Rust image signature
         run: |
-          cosign verify ghcr.io/${{ github.repository }}/rust-data-store:latest
-          
+          cosign verify ghcr.io/${{ github.repository }}/rust-data-store:latest \
+            --certificate-identity-regexp "https://github.com/${{ github.repository }}/.github/workflows/deploy.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+
       - name: Verify Python image signature
         run: |
-          cosign verify ghcr.io/${{ github.repository }}/python-telemetry:latest
+          cosign verify ghcr.io/${{ github.repository }}/python-telemetry:latest \
+            --certificate-identity-regexp "https://github.com/${{ github.repository }}/.github/workflows/deploy.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"

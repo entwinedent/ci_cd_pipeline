@@ -141,7 +141,7 @@ jobs:
           
       - name: Install dependencies
         working-directory: tests/e2e
-        run: npm ci
+        run: npm install
         
       - name: Install Playwright browsers
         working-directory: tests/e2e
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Set up k6
-        uses: grafana/k6-action@v0.4.0
+        uses: grafana/k6-action@v0.5.1
         
       - name: Run load tests
         run: k6 run tests/load/load-test.js
@@ -204,7 +204,7 @@ jobs:
           
       - name: Install Go gateway Pact dependencies
         working-directory: tests/pact/go-gateway-consumer
-        run: npm ci
+        run: npm install
         
       - name: Run Go gateway Pact tests
         working-directory: tests/pact/go-gateway-consumer
