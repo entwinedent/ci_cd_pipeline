@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rust-data-store.fullname" . }}
+  labels:
+    {{- include "rust-data-store.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "rust-data-store.selectorLabels" . | nindent 4 }}

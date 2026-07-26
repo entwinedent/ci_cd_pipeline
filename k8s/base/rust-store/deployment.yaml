@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rust-data-store
+  labels:
+    app: rust-data-store
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rust-data-store
+  template:
+    metadata:
+      labels:
+        app: rust-data-store
+        version: v1
+    spec:
+      containers:
+      - name: data-store
+        image: ghcr.io/username/ci-cd-pipeline/rust-data-store:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50051
+          name: grpc
+          protocol: TCP
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "timeout 5 grpcurl -plaintext localhost:50051 datastore.DataStoreService/HealthCheck || exit 1"
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "timeout 5 grpcurl -plaintext localhost:50051 datastore.DataStoreService/HealthCheck || exit 1"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3

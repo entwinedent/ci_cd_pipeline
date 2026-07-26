@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: production
+
+resources:
+- ../../base/go-gateway
+- ../../base/rust-store
+- ../../base/python-telemetry
+
+patches:
+- path: patches/gateway-replicas.yaml
+  target:
+    kind: Deployment
+    name: go-api-gateway
+- path: patches/store-replicas.yaml
+  target:
+    kind: Deployment
+    name: rust-data-store
+- path: patches/telemetry-replicas.yaml
+  target:
+    kind: Deployment
+    name: python-telemetry
+- path: patches/gateway-resources.yaml
+  target:
+    kind: Deployment
+    name: go-api-gateway
+- path: patches/store-resources.yaml
+  target:
+    kind: Deployment
+    name: rust-data-store
+- path: patches/telemetry-resources.yaml
+  target:
+    kind: Deployment
+    name: python-telemetry
+
+images:
+- name: ghcr.io/username/ci-cd-pipeline/go-api-gateway
+  newTag: latest
+- name: ghcr.io/username/ci-cd-pipeline/rust-data-store
+  newTag: latest
+- name: ghcr.io/username/ci-cd-pipeline/python-telemetry
+  newTag: latest

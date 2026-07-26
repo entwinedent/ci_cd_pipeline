@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-server
+  namespace: spire
+data:
+  server.conf: |
+    server {
+      bind_address = "0.0.0.0"
+      bind_port = 8081
+      socket_path = "/tmp/spire-server/private/api.sock"
+      trust_domain = "ci-cd-pipeline.local"
+      data_dir = "/run/spire/data"
+      log_level = "INFO"
+      default_svid_ttl = "1h"
+      
+      plugins {
+        DataStore = "sqlite3"
+        NodeAttestor = "k8s"
+        KeyManager = "disk"
+        Notifier = "noop"
+      }
+      
+      # PostgreSQL database
+      datastore {
+        plugin_data {
+          database_type = "sqlite3"
+          connection_string = "/run/spire/data/datastore.sqlite3"
+        }
+      }
+      
+      # Federation
+      federation {
+        bundle_endpoint {
+          address = "https://spire-server.spire.svc.cluster.local:8081"
+        }
+      }
+      
+      # Upstream CA
+      upstream_ca {
+        type = "Disk"
+        plugin_data {
+          key_file_path = "/run/spire/data/ca-key.pem"
+          cert_file_path = "/run/spire/data/ca-cert.pem"
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spire-server
+  namespace: spire
+  labels:
+    app: spire-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spire-server
+  template:
+    metadata:
+      labels:
+        app: spire-server
+    spec:
+      containers:
+      - name: spire-server
+        image: ghcr.io/spiffe/spire-server:1.8.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - "-config"
+        - "/etc/spire/server.conf"
+        ports:
+        - containerPort: 8081
+          name: grpc
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/spire
+        - name: data
+          mountPath: /run/spire/data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: config
+        configMap:
+          name: spire-server
+      - name: data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spire-server
+  namespace: spire
+  labels:
+    app: spire-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: grpc
+  selector:
+    app: spire-server

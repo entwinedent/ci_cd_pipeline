@@ -1,0 +1,110 @@
+name: PR Ephemeral Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  create-vcluster:
+    name: Create vCluster for PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+        with:
+          fetch-depth: 0
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@b3b1b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3
+        with:
+          version: 'v1.29.0'
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4
+        with:
+          version: 'v3.14.0'
+      
+      - name: Install vCluster CLI
+        run: |
+          curl -s -L "https://github.com/loft-sh/vcluster/releases/download/v0.18.0/vcluster-linux-amd64" -o vcluster
+          chmod +x vcluster
+          sudo mv vcluster /usr/local/bin/
+      
+      - name: Create vCluster for PR
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CLUSTER_NAME="pr-${PR_NUMBER}"
+          
+          vcluster create $CLUSTER_NAME \
+            --namespace=vcluster-$CLUSTER_NAME \
+            --connect=false \
+            --create-namespace
+          
+          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+          echo "CLUSTER_NAMESPACE=vcluster-$CLUSTER_NAME" >> $GITHUB_ENV
+      
+      - name: Deploy services to vCluster
+        run: |
+          vcluster connect ${{ env.CLUSTER_NAME }} --namespace=${{ env.CLUSTER_NAMESPACE }}
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f k8s/base/go-gateway/
+          kubectl apply -f k8s/base/rust-store/
+          kubectl apply -f k8s/base/python-telemetry/
+          
+          # Wait for deployments
+          kubectl wait --for=condition=available --timeout=300s deployment/go-api-gateway
+          kubectl wait --for=condition=available --timeout=300s deployment/rust-data-store
+          kubectl wait --for=condition=available --timeout=300s deployment/python-telemetry
+          
+          vcluster disconnect ${{ env.CLUSTER_NAME }}
+      
+      - name: Comment PR with cluster info
+        uses: actions/github-script@d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Ephemeral Environment Created
+              
+              A vCluster has been created for testing this PR:
+              
+              - **Cluster Name**: pr-${{ github.event.pull_request.number }}
+              - **Namespace**: vcluster-pr-${{ github.event.pull_request.number }}
+              
+              ### Access the Environment
+              
+              \`\`\`bash
+              vcluster connect pr-${{ github.event.pull_request.number }} --namespace=vcluster-pr-${{ github.event.pull_request.number }}
+              kubectl get pods
+              \`\`\`
+              
+              The environment will be automatically destroyed when the PR is closed.`
+            })
+
+  destroy-vcluster:
+    name: Destroy vCluster for PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@b3b1b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3
+        with:
+          version: 'v1.29.0'
+      
+      - name: Install vCluster CLI
+        run: |
+          curl -s -L "https://github.com/loft-sh/vcluster/releases/download/v0.18.0/vcluster-linux-amd64" -o vcluster
+          chmod +x vcluster
+          sudo mv vcluster /usr/local/bin/
+      
+      - name: Destroy vCluster
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CLUSTER_NAME="pr-${PR_NUMBER}"
+          
+          vcluster delete $CLUSTER_NAME --namespace=vcluster-$CLUSTER_NAME || true

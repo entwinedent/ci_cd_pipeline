@@ -1,0 +1,184 @@
+name: FinOps Cost Governance Gate
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  cost-analysis:
+    name: "Analyze Infra & Manifest Delta Costs"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+
+      # 1. Mock Infracost for Cloud Infrastructure Delta (Terraform)
+      - name: Setup Python
+        uses: actions/setup-python@0c52d7470c3bc7653bb7179d7ab6a8bb0cc0b2b9
+        with:
+          python-version: '3.11'
+
+      - name: Install Mock Infracost
+        run: |
+          pip install pyyaml
+          chmod +x tools/infracost-mock/infracost_mock.py
+
+      - name: Generate Mock Terraform Plan
+        if: hashFiles('terraform/*.tf') != ''
+        run: |
+          cd terraform
+          terraform init -input=false
+          terraform plan -out=tfplan -input=false
+          terraform show -json tfplan > /tmp/terraform-plan.json
+
+      - name: Generate Infracost Breakdown
+        if: hashFiles('terraform/*.tf') != ''
+        run: |
+          python tools/infracost-mock/infracost_mock.py \
+            --path /tmp/terraform-plan.json \
+            --format json \
+            --out-file /tmp/infracost.json
+
+      # 2. Mock Kubecost for Kubernetes Workload Delta
+      - name: Generate Kubecost Manifest Cost Prediction
+        run: |
+          python tools/kubectl-cost-mock/kubectl_cost_mock.py \
+            --path k8s/base \
+            --format json \
+            --out-file /tmp/kubecost.json
+
+      # 3. Generate Combined Cost Report
+      - name: Generate Combined Cost Report
+        id: cost_report
+        run: |
+          python << 'EOF'
+          import json
+          import os
+
+          # Read Infracost report
+          infracost_data = {}
+          if os.path.exists('/tmp/infracost.json'):
+              with open('/tmp/infracost.json', 'r') as f:
+                  infracost_data = json.load(f)
+
+          # Read Kubecost report
+          kubecost_data = {}
+          if os.path.exists('/tmp/kubecost.json'):
+              with open('/tmp/kubecost.json', 'r') as f:
+                  kubecost_data = json.load(f)
+
+          # Calculate totals
+          infra_monthly = infracost_data.get('totalMonthlyCost', 0)
+          k8s_monthly = kubecost_data.get('totalMonthlyCost', 0)
+          total_monthly = infra_monthly + k8s_monthly
+
+          # Check thresholds
+          cost_increase = total_monthly * 0.15  # 15% threshold
+          dollar_threshold = 2000  # $2000 threshold
+
+          # Generate report
+          report = {
+              'summary': {
+                  'infrastructureMonthlyCost': infra_monthly,
+                  'kubernetesMonthlyCost': k8s_monthly,
+                  'totalMonthlyCost': total_monthly,
+                  'currency': 'USD'
+              },
+              'thresholds': {
+                  'percentageThreshold': 15,
+                  'dollarThreshold': 2000,
+                  'costIncreaseThreshold': cost_increase,
+                  'requiresApproval': total_monthly > dollar_threshold or cost_increase > dollar_threshold
+              },
+              'infrastructure': infracost_data,
+              'kubernetes': kubecost_data
+          }
+
+          with open('/tmp/combined-cost-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+
+          # Set output for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'total_cost={total_monthly}\n')
+              f.write(f'requires_approval={report["thresholds"]["requiresApproval"]}\n')
+
+          print(f"Total Monthly Cost: ${total_monthly:.2f}")
+          print(f"Requires Approval: {report['thresholds']['requiresApproval']}")
+          EOF
+
+      # 4. Post Cost Report to PR Comment
+      - name: Post Cost Report to PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const costReport = JSON.parse(fs.readFileSync('/tmp/combined-cost-report.json', 'utf8'));
+            
+            const totalCost = costReport.summary.totalMonthlyCost;
+            const infraCost = costReport.summary.infrastructureMonthlyCost;
+            const k8sCost = costReport.summary.kubernetesMonthlyCost;
+            const requiresApproval = costReport.thresholds.requiresApproval;
+            
+            const comment = `## 💰 FinOps Cost Impact Report
+            
+            ### Summary
+            - **Total Monthly Cost**: $${totalCost.toFixed(2)}
+            - **Infrastructure Cost**: $${infraCost.toFixed(2)}
+            - **Kubernetes Cost**: $${k8sCost.toFixed(2)}
+            
+            ### Cost Analysis
+            ${requiresApproval ? '⚠️ **This PR exceeds cost thresholds and requires FinOps-Admins approval**' : '✅ **This PR is within cost thresholds**'}
+            
+            ### Thresholds
+            - Percentage Threshold: 15%
+            - Dollar Threshold: $2,000/month
+            
+            ### Recommendations
+            - Review resource allocations in Kubernetes manifests
+            - Consider using spot instances for non-critical workloads
+            - Implement autoscaling to optimize resource utilization
+            - Review Terraform infrastructure for cost optimization opportunities
+            
+            ---
+            *Generated by FinOps Cost Governance Gate*`;
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('FinOps Cost Impact Report')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      # 5. Upload Cost Reports as Artifacts
+      - name: Upload Cost Reports
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4102951549b39ef5f55
+        with:
+          name: cost-reports
+          path: |
+            /tmp/infracost.json
+            /tmp/kubecost.json
+            /tmp/combined-cost-report.json
+          retention-days: 30

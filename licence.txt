@@ -1,0 +1,7 @@
+Copyright (c) 2026 Jayson Maxfield. All rights reserved.
+
+No part of this software may be reproduced, distributed, or transmitted in any form or by any means without express written permission.
+
+No license, express or implied, is granted to any person, entity, company, government, or other organization under any copyright, patent, trademark, trade secret, or other intellectual property right in this software. Unauthorized use, copying, modification, distribution, or sublicensing is strictly prohibited.
+
+This software is provided "as is" without warranty of any kind, and the author expressly disclaims all liability for damages arising from its use or inability to use it.

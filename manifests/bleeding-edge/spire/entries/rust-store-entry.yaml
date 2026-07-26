@@ -1,0 +1,16 @@
+apiVersion: spireid.io/v1
+kind: ClusterSPIREID
+metadata:
+  name: rust-store-spire-id
+  namespace: default
+spec:
+  spiffeID:
+    trustDomain: ci-cd-pipeline.local
+    parentID: /ns
+    path: /ns/default/sa/rust-data-store
+  selector:
+    matchLabels:
+      app: rust-data-store
+  dnsNames:
+  - rust-data-store.default.svc.cluster.local
+  - rust-data-store.default

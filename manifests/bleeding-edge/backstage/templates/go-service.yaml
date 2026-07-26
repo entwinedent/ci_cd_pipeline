@@ -1,0 +1,64 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: go-microservice-template
+  title: Go Microservice Template
+  description: Scaffold a new Go microservice with Dockerfile, Helm chart, and CI/CD pipeline
+spec:
+  type: service
+  parameters:
+    - title: Service Information
+      required:
+        - service_name
+        - service_port
+      properties:
+        service_name:
+          title: Service Name
+          type: string
+          description: The name of the service (kebab-case)
+          pattern: ^[a-z0-9-]+$
+        service_port:
+          title: Service Port
+          type: number
+          description: The port the service will listen on
+          default: 8080
+        service_description:
+          title: Service Description
+          type: string
+          description: A brief description of the service
+          default: "A Go microservice"
+  
+  steps:
+    - id: fetch-template
+      name: Fetch Go Service Template
+      action: fetch:template
+      input:
+        url: ./templates/go-service-skeleton
+        values:
+          service_name: ${{ parameters.service_name }}
+          service_port: ${{ parameters.service_port }}
+          service_description: ${{ parameters.service_description }}
+    
+    - id: publish-github
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        description: ${{ parameters.service_description }}
+        repoUrl: ${{ steps['fetch-template'].output.repoUrl }}
+        repoVisibility: private
+        allowLicenseReuse: false
+    
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        catalogInfoUrl: ${{ steps['publish-github'].output.catalogInfoUrl }}
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: default/component/${{ parameters.service_name }}

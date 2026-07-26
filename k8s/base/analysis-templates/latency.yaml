@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: latency
+spec:
+  args:
+  - name: service-name
+  - name: threshold
+    value: "0.5"
+  metrics:
+  - name: latency-p95
+    interval: 30s
+    count: 5
+    successCondition: result[0] < {{args.threshold}}
+    failureLimit: 2
+    provider:
+      prometheus:
+        address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="{{args.service-name}}"}[5m]))
+            by (le)
+          )

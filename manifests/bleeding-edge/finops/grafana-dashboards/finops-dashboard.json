@@ -1,0 +1,115 @@
+{
+  "dashboard": {
+    "title": "FinOps Cost Dashboard",
+    "uid": "finops-dashboard",
+    "tags": ["finops", "cost", "opencost"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Monthly Cost",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(container_cpu_allocation) * 30 * 24 + sum(container_memory_allocation_bytes / 1024 / 1024 / 1024) * 4 * 30 * 24",
+            "legendFormat": "Monthly Cost"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Cost by Namespace",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (namespace) (container_cpu_allocation * 30 * 24 + container_memory_allocation_bytes / 1024 / 1024 / 1024 * 4 * 30 * 24)",
+            "legendFormat": "{{namespace}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Cost by Deployment",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (deployment) (container_cpu_allocation * 30 * 24 + container_memory_allocation_bytes / 1024 / 1024 / 1024 * 4 * 30 * 24)",
+            "legendFormat": "{{deployment}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "CPU Cost vs Memory Cost",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum(container_cpu_allocation * 30 * 24)",
+            "legendFormat": "CPU Cost"
+          },
+          {
+            "expr": "sum(container_memory_allocation_bytes / 1024 / 1024 / 1024 * 4 * 30 * 24)",
+            "legendFormat": "Memory Cost"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Cost Trend (7 Days)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(container_cpu_allocation) * 30 * 24 + sum(container_memory_allocation_bytes / 1024 / 1024 / 1024) * 4 * 30 * 24",
+            "legendFormat": "Daily Cost"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Resource Efficiency",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "avg(rate(container_cpu_usage_seconds_total[5m]) / container_cpu_allocation) * 100",
+            "legendFormat": "CPU Efficiency %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "max": 100,
+            "min": 0
+          }
+        }
+      }
+    ]
+  }
+}

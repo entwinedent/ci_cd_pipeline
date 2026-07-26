@@ -1,0 +1,42 @@
+# HashiCorp Vault Helm Chart Values for Kind Cluster
+global:
+  enabled: true
+
+server:
+  image:
+    repository: hashicorp/vault
+    tag: "1.15.0"
+  
+  dev:
+    enabled: true  # Use dev mode for local development
+  
+  ui:
+    enabled: true
+  
+  service:
+    type: ClusterIP
+    port: 8200
+  
+  ingress:
+    enabled: false
+  
+  dataStorage:
+    enabled: false  # Dev mode doesn't need persistent storage
+  
+  standalone:
+    enabled: true
+  
+  auth:
+    kubernetes:
+      enabled: true
+      config:
+        roles:
+          - name: ci-cd-pipeline
+            bound_service_account_names: ["external-secrets-operator"]
+            bound_service_account_namespaces: ["external-secrets"]
+            policies: ["ci-cd-pipeline-policy"]
+  
+  secrets:
+    - path: ci-cd-pipeline
+      type: kv-v2
+      description: CI/CD Pipeline Secrets

@@ -1,0 +1,151 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+        with:
+          fetch-depth: 0
+          
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@e8b0f9b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  container-scan:
+    name: Container Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      
+      - name: Build images
+        run: |
+          docker build -t go-api-gateway:test services/go-api-gateway
+          docker build -t rust-data-store:test services/rust-data-store
+          docker build -t python-telemetry:test services/python-telemetry
+          
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        with:
+          image-ref: go-api-gateway:test
+          format: 'sarif'
+          output: 'trivy-go-results.sarif'
+          
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        with:
+          sarif_file: 'trivy-go-results.sarif'
+          
+      - name: Run Trivy on Rust image
+        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        with:
+          image-ref: rust-data-store:test
+          format: 'sarif'
+          output: 'trivy-rust-results.sarif'
+          
+      - name: Upload Trivy Rust results
+        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        with:
+          sarif_file: 'trivy-rust-results.sarif'
+          
+      - name: Run Trivy on Python image
+        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        with:
+          image-ref: python-telemetry:test
+          format: 'sarif'
+          output: 'trivy-python-results.sarif'
+          
+      - name: Upload Trivy Python results
+        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        with:
+          sarif_file: 'trivy-python-results.sarif'
+
+  sast-scan:
+    name: Static Application Security Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c
+        with:
+          config: auto
+
+      - name: Run Kube-linter
+        uses: stackrox/kube-linter-action@6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6
+        with:
+          directory: k8s/base
+
+  snyk-scan:
+    name: Snyk Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+
+      - name: Run Snyk to check Go dependencies
+        uses: snyk/actions/golang@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          command: test
+          working-directory: services/go-api-gateway
+
+      - name: Run Snyk to check Rust dependencies
+        uses: snyk/actions/rust@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          command: test
+          working-directory: services/rust-data-store
+
+      - name: Run Snyk to check Python dependencies
+        uses: snyk/actions/python@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          command: test
+          working-directory: services/python-telemetry
+
+      - name: Run Snyk to check Docker images
+        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: go-api-gateway:test
+          args: --severity-threshold=high --file=services/go-api-gateway/Dockerfile
+
+      - name: Run Snyk to check Docker images (Rust)
+        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: rust-data-store:test
+          args: --severity-threshold=high --file=services/rust-data-store/Dockerfile
+
+      - name: Run Snyk to check Docker images (Python)
+        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: python-telemetry:test
+          args: --severity-threshold=high --file=services/python-telemetry/Dockerfile
+
+      - name: Upload Snyk results
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4102951549b39ef5f55
+        with:
+          name: snyk-results
+          path: snyk-report.sarif
+          retention-days: 30

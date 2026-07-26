@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: copilot-integration
+  namespace: mcp-server
+data:
+  copilot.yaml: |
+    github_copilot:
+      enabled: true
+      webhook_url: http://mcp-server.mcp-server.svc.cluster.local:8080/webhook
+      authentication:
+        type: bearer_token
+        token: ${COPILOT_TOKEN}
+      allowed_repositories:
+        - username/ci-cd-pipeline
+      rate_limit:
+        requests_per_minute: 100
+      tools:
+        enabled:
+          - k8s
+          - hubble
+          - prometheus
+          - argocd
+          - vcluster
+      permissions:
+        read:
+          - pod_logs
+          - hubble_flows
+          - prometheus_metrics
+          - deployment_status
+          - argocd_apps
+          - vcluster_list
+        write:
+          - apply_manifest
+          - scale_deployment
+          - argocd_sync
+          - argocd_rollback
+          - vcluster_create
+          - vcluster_delete
+      safety:
+        require_confirmation: true
+        dry_run: false
+        audit_log: true

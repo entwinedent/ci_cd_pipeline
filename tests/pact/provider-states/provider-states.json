@@ -1,0 +1,21 @@
+{
+  "rust-data-store": {
+    "data store is available": {
+      "state": "Data store is ready to accept requests"
+    },
+    "data exists for key": {
+      "state": "Data exists for the specified key"
+    },
+    "service is healthy": {
+      "state": "Service is healthy and responding"
+    }
+  },
+  "external-webhook": {
+    "webhook endpoint is available": {
+      "state": "Webhook endpoint is ready to receive alerts"
+    },
+    "webhook endpoint is temporarily unavailable": {
+      "state": "Webhook endpoint is experiencing issues"
+    }
+  }
+}

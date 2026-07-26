@@ -1,0 +1,16 @@
+apiVersion: spireid.io/v1
+kind: ClusterSPIREID
+metadata:
+  name: python-telemetry-spire-id
+  namespace: default
+spec:
+  spiffeID:
+    trustDomain: ci-cd-pipeline.local
+    parentID: /ns
+    path: /ns/default/sa/python-telemetry
+  selector:
+    matchLabels:
+      app: python-telemetry
+  dnsNames:
+  - python-telemetry.default.svc.cluster.local
+  - python-telemetry.default

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubble-ui
+  namespace: cilium
+  labels:
+    app.kubernetes.io/name: hubble-ui
+    app.kubernetes.io/part-of: cilium
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    k8s-app: hubble-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hubble-ui
+  namespace: cilium
+  labels:
+    k8s-app: hubble-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: hubble-ui
+  template:
+    metadata:
+      labels:
+        k8s-app: hubble-ui
+    spec:
+      containers:
+      - name: hubble-ui
+        image: quay.io/cilium/hubble-ui:v0.11.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: HUBBLE_SERVER
+          value: "hubble-relay.cilium.svc.cluster.local:4245"

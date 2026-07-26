@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-delay-api-gateway
+  namespace: default
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: go-api-gateway
+  delay:
+    latency: "100ms"
+    jitter: "10ms"
+  duration: "30s"

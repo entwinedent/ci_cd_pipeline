@@ -1,0 +1,59 @@
+# Cilium Helm Values for Kind Cluster
+# Configured for complementary CNI mode with eBPF host routing
+
+kubeProxyReplacement: strict
+enableIPv4Masquerade: true
+enableIPv6Masquerade: false
+
+# Kind-specific configuration
+cni:
+  exclusive: false  # Complementary mode, don't replace Kind's default CNI
+
+# eBPF configuration
+bpf:
+  datapathMode: veth
+  masquerade: true
+  hostRouting: true  # Enable eBPF host routing for zero overhead
+
+# Hubble observability
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    standalone:
+      enabled: true
+  metrics:
+    enabled:
+    - drop
+    - tcp
+    - flow
+    - icmp
+    - http
+    - dns
+
+# Prometheus metrics
+prometheus:
+  enabled: false
+  serviceMonitor:
+    enabled: true
+    trustCRDsExist: true
+
+# Operator configuration
+operator:
+  replicas: 1
+  prometheus:
+    enabled: true
+
+# Cluster-wide configuration
+cluster:
+  name: ci-cd-pipeline
+  id: 1
+
+# IPAM configuration
+ipam:
+  mode: kubernetes
+
+# Kube-proxy replacement
+kubeProxyReplacement: partial

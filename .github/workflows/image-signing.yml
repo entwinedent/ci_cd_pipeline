@@ -1,0 +1,93 @@
+name: Container Image Signing with Cosign
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  sign-images:
+    name: Sign Container Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@e870f0f7e8e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Go image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/go-api-gateway
+          push: true
+          tags: ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }},ghcr.io/${{ github.repository }}/go-api-gateway:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build and push Rust image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/rust-data-store
+          push: true
+          tags: ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }},ghcr.io/${{ github.repository }}/rust-data-store:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build and push Python image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/python-telemetry
+          push: true
+          tags: ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }},ghcr.io/${{ github.repository }}/python-telemetry:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
+      
+      - name: Sign Go image
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
+          cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:latest
+      
+      - name: Sign Rust image
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
+          cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:latest
+      
+      - name: Sign Python image
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}
+          cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:latest
+      
+      - name: Verify Go image signature
+        run: cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
+      
+      - name: Verify Rust image signature
+        run: cosign verify ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
+      
+      - name: Verify Python image signature
+        run: cosign verify ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}
+      
+      - name: Attach SBOM to Go image
+        run: |
+          cosign attach sbom --sbom sbom-go.json ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
+      
+      - name: Attach SBOM to Rust image
+        run: |
+          cosign attach sbom --sbom sbom-rust.json ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
+      
+      - name: Attach SBOM to Python image
+        run: |
+          cosign attach sbom --sbom sbom-python.json ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}

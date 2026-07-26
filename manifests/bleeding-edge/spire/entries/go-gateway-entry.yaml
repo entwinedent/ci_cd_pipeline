@@ -1,0 +1,16 @@
+apiVersion: spireid.io/v1
+kind: ClusterSPIREID
+metadata:
+  name: go-gateway-spire-id
+  namespace: default
+spec:
+  spiffeID:
+    trustDomain: ci-cd-pipeline.local
+    parentID: /ns
+    path: /ns/default/sa/go-api-gateway
+  selector:
+    matchLabels:
+      app: go-api-gateway
+  dnsNames:
+  - go-api-gateway.default.svc.cluster.local
+  - go-api-gateway.default

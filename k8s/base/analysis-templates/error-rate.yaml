@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: error-rate
+spec:
+  args:
+  - name: service-name
+  - name: threshold
+    value: "0.01"
+  metrics:
+  - name: error-rate
+    interval: 30s
+    count: 10
+    successCondition: result[0] < {{args.threshold}}
+    failureLimit: 2
+    provider:
+      prometheus:
+        address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(rate(http_requests_total{service="{{args.service-name}}",status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{service="{{args.service-name}}"}[5m]))

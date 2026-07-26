@@ -1,0 +1,55 @@
+# Grafana Tempo Helm Values for Kind Cluster
+# Configured for distributed tracing with OTel integration
+
+tempo:
+  image:
+    repository: grafana/tempo
+    tag: v2.3.0
+    pullPolicy: IfNotPresent
+
+  # Tempo configuration
+  tempoQuery:
+    enabled: true
+    image:
+      repository: grafana/tempo-query
+      tag: v2.3.0
+  
+  # Storage configuration
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /tmp/tempo
+  
+  # Distributed tracing configuration
+  distributor:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+  
+  # Metrics configuration
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+  
+  # Search configuration
+  search:
+    enabled: true
+  
+  # Resource limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 3200

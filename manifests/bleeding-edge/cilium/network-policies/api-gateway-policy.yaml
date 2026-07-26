@@ -1,0 +1,32 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-gateway-policy
+  namespace: default
+spec:
+  endpointSelector:
+    matchLabels:
+      app: go-api-gateway
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: default
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: rust-data-store
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+  - toEndpoints:
+    - matchLabels:
+        app: python-telemetry
+    toPorts:
+    - ports:
+      - port: "8000"
+        protocol: TCP

@@ -1,0 +1,28 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: network-policies
+  annotations:
+    policies.kyverno.io/title: Require Network Policies
+    policies.kyverno.io/category: Network Security
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Namespace
+    policies.kyverno.io/description: >-
+      All namespaces must have network policies to control traffic flow
+      and implement the principle of least privilege.
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+  - name: require-network-policy
+    match:
+      any:
+      - resources:
+          kinds:
+          - Namespace
+    validate:
+      message: "Namespaces must have at least one NetworkPolicy"
+      pattern:
+        metadata:
+          labels:
+            pod-security.kubernetes.io/enforce: "?*"

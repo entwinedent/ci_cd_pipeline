@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-telemetry
+  labels:
+    app: python-telemetry
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-telemetry
+  template:
+    metadata:
+      labels:
+        app: python-telemetry
+        version: v1
+    spec:
+      containers:
+      - name: telemetry-collector
+        image: ghcr.io/username/ci-cd-pipeline/python-telemetry:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "8000"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: ARGOCD_WEBHOOK_URL
+          value: ""
+        - name: SLACK_WEBHOOK_URL
+          value: ""
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3

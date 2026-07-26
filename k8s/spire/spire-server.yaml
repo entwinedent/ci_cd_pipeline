@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-server
+  namespace: spire
+data:
+  server.conf: |
+    server {
+      bind_address = "0.0.0.0"
+      bind_port = 8081
+      trust_domain = "example.org"
+      data_dir = "/run/spire/data"
+      log_level = "DEBUG"
+      ca_key_type = "disk"
+      ca_key_path = "/run/spire/data/ca-key.pem"
+      ca_cert_path = "/run/spire/data/ca-cert.pem"
+      svid_key_type = "disk"
+      svid_key_path = "/run/spire/data/svid-key.pem"
+      svid_cert_path = "/run/spire/data/svid-cert.pem"
+    }

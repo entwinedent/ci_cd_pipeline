@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package datastore;
+
+option go_package = "github.com/username/ci-cd-pipeline/proto/datastore";
+
+service DataStoreService {
+  rpc Set (SetRequest) returns (SetResponse);
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message SetRequest {
+  string key = 1;
+  bytes value = 2;
+  int64 ttl_seconds = 3;
+}
+
+message SetResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetRequest {
+  string key = 1;
+}
+
+message GetResponse {
+  bytes value = 2;
+  bool found = 1;
+  string message = 3;
+}
+
+message DeleteRequest {
+  string key = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message HealthCheckRequest {
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+}

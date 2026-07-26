@@ -1,0 +1,25 @@
+# OWASP ZAP Rules Configuration for Telemetry Service
+# Format: rule_id\tseverity\tstatus
+
+# Information Disclosure
+10021\tMedium\ton
+# X-Content-Type-Options Header
+10021\tMedium\ton
+# X-Frame-Options Header
+10021\tMedium\ton
+# Server Header
+10021\tMedium\ton
+# X-XSS-Protection Header
+10021\tMedium\ton
+
+# Security Misconfiguration
+# Cookie Without Secure Flag
+10021\tMedium\ton
+# Cookie Without SameSite Attribute
+10021\tMedium\ton
+
+# Cross-Site Scripting (XSS)
+10021\tHigh\ton
+
+# Injection
+10021\tHigh\ton

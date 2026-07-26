@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: go-api-gateway
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/username/ci-cd-pipeline.git
+    targetRevision: HEAD
+    path: k8s/base/go-gateway
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

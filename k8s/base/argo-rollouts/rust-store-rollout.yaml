@@ -1,0 +1,106 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rust-data-store
+  labels:
+    app: rust-data-store
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rust-data-store
+  strategy:
+    canary:
+      canaryService: rust-data-store-canary
+      stableService: rust-data-store-stable
+      steps:
+      - setWeight: 10
+      - pause: { duration: 30s }
+      - analysis:
+          templates:
+          - templateName: success-rate
+          args:
+          - name: service-name
+            value: "rust-data-store"
+      - setWeight: 50
+      - pause: { duration: 1m }
+      - analysis:
+          templates:
+          - templateName: success-rate
+          args:
+          - name: service-name
+            value: "rust-data-store"
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: rust-data-store
+        version: v1
+    spec:
+      containers:
+      - name: data-store
+        image: ghcr.io/username/ci-cd-pipeline/rust-data-store:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50051
+          name: grpc
+          protocol: TCP
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "timeout 5 grpcurl -plaintext localhost:50051 datastore.DataStoreService/HealthCheck || exit 1"
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "timeout 5 grpcurl -plaintext localhost:50051 datastore.DataStoreService/HealthCheck || exit 1"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rust-data-store-stable
+  labels:
+    app: rust-data-store
+spec:
+  type: ClusterIP
+  ports:
+  - port: 50051
+    targetPort: 50051
+    protocol: TCP
+    name: grpc
+  selector:
+    app: rust-data-store
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rust-data-store-canary
+  labels:
+    app: rust-data-store
+spec:
+  type: ClusterIP
+  ports:
+  - port: 50051
+    targetPort: 50051
+    protocol: TCP
+    name: grpc
+  selector:
+    app: rust-data-store

@@ -1,0 +1,75 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: go-api-gateway
+  description: Go API Gateway service for HTTP/gRPC routing
+  tags:
+    - go
+    - api-gateway
+    - microservice
+  annotations:
+    github.com/project-slug: username/ci-cd-pipeline
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-team
+  dependsOn:
+    - component:rust-data-store
+    - component:python-telemetry
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: rust-data-store
+  description: Rust Data Store with gRPC interface and in-memory caching
+  tags:
+    - rust
+    - data-store
+    - microservice
+  annotations:
+    github.com/project-slug: username/ci-cd-pipeline
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: python-telemetry
+  description: Python Telemetry service with AI anomaly detection
+  tags:
+    - python
+    - telemetry
+    - microservice
+  annotations:
+    github.com/project-slug: username/ci-cd-pipeline
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ci-cd-pipeline
+  description: Complete CI/CD Pipeline with GitOps, testing, and monitoring
+  tags:
+    - ci-cd
+    - gitops
+    - platform
+spec:
+  owner: platform-team
+  domain: platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: argocd
+  description: Argo CD for GitOps deployments
+  tags:
+    - gitops
+    - deployment
+spec:
+  type: argocd
+  owner: platform-team

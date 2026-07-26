@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unleash-config
+  namespace: unleash
+data:
+  DATABASE_URL: "postgres://unleash:unleash_secure_password@unleash-postgres:5432/unleash"
+  DATABASE_SSL: "false"
+  INIT_ADMIN_API_TOKENS: "*:development.unleash-insecure-api-token-change-me"
+  LOG_LEVEL: "info"

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-tools
+  namespace: mcp-server
+data:
+  tools.yaml: |
+    - name: list_argocd_apps
+      description: List Argo CD applications
+      input_schema:
+        type: object
+        properties:
+          project:
+            type: string
+            description: Argo CD project name (optional)
+      operation: read
+    
+    - name: get_app_status
+      description: Get Argo CD application status
+      input_schema:
+        type: object
+        properties:
+          app:
+            type: string
+            description: Application name
+      operation: read
+    
+    - name: trigger_sync
+      description: Trigger Argo CD application sync
+      input_schema:
+        type: object
+        properties:
+          app:
+            type: string
+            description: Application name
+          revision:
+            type: string
+            description: Git revision to sync (optional)
+      operation: write
+    
+    - name: rollback_app
+      description: Rollback Argo CD application
+      input_schema:
+        type: object
+        properties:
+          app:
+            type: string
+            description: Application name
+          revision:
+            type: string
+            description: Revision to rollback to
+      operation: write

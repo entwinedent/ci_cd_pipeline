@@ -1,0 +1,46 @@
+# Backstage Application Configuration
+# Additional configuration for plugins and integrations
+
+apiVersion: v1alpha1
+kind: ConfigMap
+metadata:
+  name: backstage-config
+  namespace: backstage
+data:
+  app-config.yaml: |
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+      rules:
+        - allow: [Component, System, API, Resource]
+    
+    scaffolder:
+      github:
+        token: ${GITHUB_TOKEN}
+        visibility: private
+        owner: username
+        repoAllowlist:
+          - "*/ci-cd-pipeline-*"
+    
+    argocd:
+      username: ${ARGOCD_USERNAME}
+      password: ${ARGOCD_PASSWORD}
+      url: http://argocd-server.argocd.svc.cluster.local:80
+    
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - name: ci-cd-pipeline
+              url: https://kubernetes.default.svc
+              authProvider: serviceAccount
+              skipTLSVerify: true
+    
+    vcluster:
+      enabled: true
+      instances:
+        - name: pr-environments
+          namespace: vcluster
+          context: kind-ci-cd-pipeline

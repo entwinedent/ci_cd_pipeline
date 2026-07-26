@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-flag-config
+  namespace: default
+data:
+  FEATURE_FLAG_PROVIDER: "unleash"
+  UNLEASH_URL: "http://unleash.unleash.svc.cluster.local:4242"
+  UNLEASH_API_TOKEN: "default:development.unleash-insecure-api-token-change-me"
+  UNLEASH_APP_NAME: "ci-cd-pipeline"
+  UNLEASH_ENVIRONMENT: "development"

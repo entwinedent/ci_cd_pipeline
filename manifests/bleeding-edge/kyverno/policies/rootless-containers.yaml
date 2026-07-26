@@ -1,0 +1,42 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: rootless-containers
+  annotations:
+    policies.kyverno.io/title: Require Rootless Containers
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Containers must run as non-root users to prevent privilege escalation attacks.
+      This policy enforces that all containers specify a non-zero user ID.
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+  - name: require-non-root-user
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Containers must run as non-root user. Set securityContext.runAsUser to a non-zero value."
+      pattern:
+        spec:
+          containers:
+          - securityContext:
+              runAsUser: ">0"
+  - name: forbid-root-filesystem
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "Containers must not run with root filesystem access. Set securityContext.readOnlyRootFilesystem to true."
+      pattern:
+        spec:
+          containers:
+          - securityContext:
+              readOnlyRootFilesystem: true

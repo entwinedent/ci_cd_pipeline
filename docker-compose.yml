@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  go-api-gateway:
+    build:
+      context: ./services/go-api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATA_STORE_TARGET=http://rust-data-store:50051
+      - LOG_LEVEL=debug
+    depends_on:
+      - rust-data-store
+    networks:
+      - ci-cd-network
+
+  rust-data-store:
+    build:
+      context: ./services/rust-data-store
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      - LOG_LEVEL=debug
+    networks:
+      - ci-cd-network
+
+  python-telemetry:
+    build:
+      context: ./services/python-telemetry
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - LOG_LEVEL=debug
+      - ARGOCD_WEBHOOK_URL=
+      - SLACK_WEBHOOK_URL=
+    networks:
+      - ci-cd-network
+
+networks:
+  ci-cd-network:
+    driver: bridge

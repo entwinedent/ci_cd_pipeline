@@ -1,0 +1,39 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: cosign-verification
+  annotations:
+    policies.kyverno.io/title: Verify Cosign Image Signatures
+    policies.kyverno.io/category: Supply Chain Security
+    policies.kyverno.io/severity: critical
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Images must be signed with Cosign and verified before deployment.
+      This policy ensures only signed images from trusted sources can run.
+spec:
+  validationFailureAction: Audit
+  background: true
+  webhookConfiguration:
+    timeoutSeconds: 30
+  rules:
+  - name: verify-image-signatures
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    preconditions:
+      all:
+      - key: "{{ request.operation }}"
+        operator: In
+        value:
+        - CREATE
+        - UPDATE
+    verifyImages:
+    - imageReferences:
+      - "*"
+      attestors:
+      - entries:
+        - keyless:
+            url: "https://sigstore.dev"
+            rekorUrl: "https://rekor.sigstore.dev"

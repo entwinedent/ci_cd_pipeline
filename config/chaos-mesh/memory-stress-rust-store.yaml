@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: memory-stress-rust-store
+  namespace: default
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: rust-data-store
+  stressors:
+    memory:
+      workers: 4
+      size: "512MB"
+  duration: "30s"

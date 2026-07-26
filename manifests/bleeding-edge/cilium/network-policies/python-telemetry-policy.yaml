@@ -1,0 +1,25 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: python-telemetry-policy
+  namespace: default
+spec:
+  endpointSelector:
+    matchLabels:
+      app: python-telemetry
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: go-api-gateway
+    toPorts:
+    - ports:
+      - port: "8000"
+        protocol: TCP
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP

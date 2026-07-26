@@ -1,0 +1,88 @@
+# Backstage Helm Values for Kind Cluster
+# Configured with Argo CD, Kubernetes, and vCluster plugins
+
+backstage:
+  image:
+    repository: ghcr.io/backstage/backstage
+    tag: v1.21.0
+    pullPolicy: IfNotPresent
+
+  # PostgreSQL database
+  postgresql:
+    enabled: true
+    postgresqlUsername: backstage
+    postgresqlPassword: backstage
+    postgresqlDatabase: backstage_db
+
+  # App configuration
+  appConfig:
+    app:
+      baseUrl: http://localhost:3000
+      title: CI/CD Pipeline Developer Portal
+    
+    organization:
+      name: ci-cd-pipeline
+    
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+    # Plugin configurations
+    argocd:
+      username: ${ARGOCD_USERNAME}
+      password: ${ARGOCD_PASSWORD}
+      url: http://argocd-server.argocd.svc.cluster.local:80
+      instances:
+        - name: argocd
+          url: http://argocd-server.argocd.svc.cluster.local:80
+
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - name: ci-cd-pipeline
+              url: https://kubernetes.default.svc
+              authProvider: serviceAccount
+              skipTLSVerify: true
+
+    vcluster:
+      enabled: true
+      instances:
+        - name: pr-environments
+          namespace: vcluster
+
+  # Enabled plugins
+  enabledPlugins:
+    - name: argocd
+      package: "@backstage/plugin_argocd"
+    - name: kubernetes
+      package: "@backstage/plugin-kubernetes"
+    - name: github
+      package: "@backstage/plugin-github"
+    - name: scaffolder
+      package: "@backstage/plugin-scaffolder"
+    - name: techdocs
+      package: "@backstage/plugin-techdocs"
+
+  # Service account for Kubernetes plugin
+  serviceAccount:
+    create: true
+    name: backstage
+    annotations:
+      eks.amazonaws.com/role-arn: ""
+
+  # Ingress configuration
+  ingress:
+    enabled: false
+
+  # Resource limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi

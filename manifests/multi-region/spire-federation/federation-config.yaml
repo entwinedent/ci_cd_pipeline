@@ -1,0 +1,81 @@
+# SPIRE Server Federation Configuration
+# Enables cross-region identity federation between us-east-1 and eu-central-1
+
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterFederation
+metadata:
+  name: multi-region-federation
+  namespace: spire
+spec:
+  trustDomain: ci-cd-pipeline.local
+  
+  # Primary region (us-east-1) SPIRE server
+  primary:
+    trustDomain: ci-cd-pipeline.local
+    bundleEndpoint: https://spire-server.spire.svc:8443
+    endpointSocket: spire-server.spire.svc:8081
+    
+  # Secondary region (eu-central-1) SPIRE server
+  secondary:
+    trustDomain: ci-cd-pipeline.local
+    bundleEndpoint: https://spire-server.spire.svc:8443
+    endpointSocket: spire-server.spire.svc:8081
+    
+  # Federation mode
+  mode: bidirectional
+  
+  # Trust bundle synchronization
+  syncPolicy:
+    interval: 30s
+    retryInterval: 5s
+    retryLimit: 3
+    
+  # Bundle refresh settings
+  bundleRefresh:
+    interval: 1h
+    jitter: 10m
+    
+  # Federation endpoints
+  federationEndpoints:
+    - name: us-east-1
+      trustDomain: ci-cd-pipeline.local
+      bundleEndpoint: https://spire-server-us-east-1.spire.svc:8443
+      endpointSocket: spire-server-us-east-1.spire.svc:8081
+      trustDomainBundle:
+        trustDomain: ci-cd-pipeline.local
+        bundleEndpoint: https://spire-server-us-east-1.spire.svc:8443
+        endpointSocket: spire-server-us-east-1.spire.svc:8081
+        
+    - name: eu-central-1
+      trustDomain: ci-cd-pipeline.local
+      bundleEndpoint: https://spire-server-eu-central-1.spire.svc:8443
+      endpointSocket: spire-server-eu-central-1.spire.svc:8081
+      trustDomainBundle:
+        trustDomain: ci-cd-pipeline.local
+        bundleEndpoint: https://spire-server-eu-central-1.spire.svc:8443
+        endpointSocket: spire-server-eu-central-1.spire.svc:8081
+---
+# SPIRE Trust Bundle ConfigMap for Federation
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-federation-bundles
+  namespace: spire
+data:
+  # Primary region trust bundle
+  us-east-1-bundle.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIBkTCB+wIJAK9Q8Q7vQ5ZAMA0GCSqGSIb3DQEBCwUAMBExDzANBgoJkiaJk/Is
+    ZAEZFgRsb2NhbDAeFw0yNDAxMDEwMDAwMDBaFw0yNTAxMDEwMDAwMDBaMBExDzAN
+    BgoJkiaJk/IsZAEZFgRsb2NhbDBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQC5K8Y9
+    8X4Y7Z2X3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K0L
+    -----END CERTIFICATE-----
+    
+  # Secondary region trust bundle
+  eu-central-1-bundle.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIBkTCB+wIJAK9Q8Q7vQ5ZAMA0GCSqGSIb3DQEBCwUAMBExDzANBgoJkiaJk/Is
+    ZAEZFgRsb2NhbDAeFw0yNDAxMDEwMDAwMDBaFw0yNTAxMDEwMDAwMDBaMBExDzAN
+    BgoJkiaJk/IsZAEZFgRsb2NhbDBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQC5K8Y9
+    8X4Y7Z2X3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K0L
+    -----END CERTIFICATE-----

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+httpx
+python-json-logger
+grpcio
+grpcio-tools
+# Note: Python 3.14 is very new and has compatibility issues with many packages
+# For production, use Python 3.11 or 3.12 for better package compatibility
+# scikit-learn, numpy, and pandas require compilation on Python 3.14

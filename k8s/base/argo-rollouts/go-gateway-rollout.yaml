@@ -1,0 +1,117 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: go-api-gateway
+  labels:
+    app: go-api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go-api-gateway
+  strategy:
+    canary:
+      canaryService: go-api-gateway-canary
+      stableService: go-api-gateway-stable
+      trafficRouting:
+        istio:
+          virtualService:
+            name: go-api-gateway-vs
+      steps:
+      - setWeight: 10
+      - pause: { duration: 30s }
+      - analysis:
+          templates:
+          - templateName: success-rate
+          args:
+          - name: service-name
+            value: "go-api-gateway"
+      - setWeight: 50
+      - pause: { duration: 1m }
+      - analysis:
+          templates:
+          - templateName: success-rate
+          args:
+          - name: service-name
+            value: "go-api-gateway"
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: go-api-gateway
+        version: v1
+    spec:
+      containers:
+      - name: api-gateway
+        image: ghcr.io/username/ci-cd-pipeline/go-api-gateway:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DATA_STORE_TARGET
+          value: "rust-data-store:50051"
+        - name: LOG_LEVEL
+          valueFrom:
+            secretKeyRef:
+              name: api-gateway-secrets
+              key: log-level
+              optional: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-api-gateway-stable
+  labels:
+    app: go-api-gateway
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: go-api-gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-api-gateway-canary
+  labels:
+    app: go-api-gateway
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: go-api-gateway

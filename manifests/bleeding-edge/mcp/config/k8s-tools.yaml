@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-tools
+  namespace: mcp-server
+data:
+  tools.yaml: |
+    - name: get_pod_logs
+      description: Get logs from a specific pod
+      input_schema:
+        type: object
+        properties:
+          namespace:
+            type: string
+            description: Kubernetes namespace
+          pod:
+            type: string
+            description: Pod name
+          container:
+            type: string
+            description: Container name (optional)
+          tail_lines:
+            type: integer
+            description: Number of lines to tail
+      operation: read
+    
+    - name: list_pods
+      description: List pods in a namespace
+      input_schema:
+        type: object
+        properties:
+          namespace:
+            type: string
+            description: Kubernetes namespace
+          label_selector:
+            type: string
+            description: Label selector for filtering
+      operation: read
+    
+    - name: get_deployment_status
+      description: Get deployment status
+      input_schema:
+        type: object
+        properties:
+          namespace:
+            type: string
+            description: Kubernetes namespace
+          deployment:
+            type: string
+            description: Deployment name
+      operation: read
+    
+    - name: apply_manifest
+      description: Apply a Kubernetes manifest
+      input_schema:
+        type: object
+        properties:
+          manifest:
+            type: string
+            description: YAML manifest to apply
+          namespace:
+            type: string
+            description: Target namespace
+      operation: write
+    
+    - name: scale_deployment
+      description: Scale a deployment
+      input_schema:
+        type: object
+        properties:
+          namespace:
+            type: string
+            description: Kubernetes namespace
+          deployment:
+            type: string
+            description: Deployment name
+          replicas:
+            type: integer
+            description: Number of replicas
+      operation: write

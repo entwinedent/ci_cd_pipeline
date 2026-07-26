@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+docs/
+*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# CI/CD
+.github/
+
+# Tests
+tests/
+*.test
+*.out
+
+# Dependencies
+vendor/
+target/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Environment
+.env
+.env.*
+secrets/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Scripts
+scripts/
+
+# Config
+config/
+
+# Kubernetes
+k8s/
+helm/
+*.kubeconfig

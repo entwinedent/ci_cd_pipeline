@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-tools
+  namespace: mcp-server
+data:
+  tools.yaml: |
+    - name: query_prometheus
+      description: Query Prometheus metrics
+      input_schema:
+        type: object
+        properties:
+          query:
+            type: string
+            description: PromQL query
+          duration:
+            type: string
+            description: Time range (e.g., 5m)
+      operation: read
+    
+    - name: get_service_metrics
+      description: Get metrics for a specific service
+      input_schema:
+        type: object
+        properties:
+          service:
+            type: string
+            description: Service name
+          namespace:
+            type: string
+            description: Kubernetes namespace
+          metric:
+            type: string
+            description: Metric name (e.g., http_requests_total)
+      operation: read

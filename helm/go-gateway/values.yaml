@@ -1,0 +1,110 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/username/ci-cd-pipeline/go-api-gateway
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api-gateway.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: api-gateway-tls
+  #    hosts:
+  #      - api-gateway.local
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 250m
+  #   memory: 64Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  - name: PORT
+    value: "8080"
+  - name: DATA_STORE_TARGET
+    value: "rust-data-store:50051"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: FEATURE_FLAG_PROVIDER
+    value: "unleash"
+
+featureFlags:
+  unleash:
+    url: "http://unleash.bleeding-edge.svc.cluster.local:4242"
+    apiKey: ""
+  launchdarkly:
+    sdkKey: ""
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    scrapeTimeout: 10s

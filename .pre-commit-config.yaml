@@ -1,0 +1,85 @@
+# Pre-commit hooks for supply chain security
+# GuardDog provides Python dependency security scanning
+
+repos:
+  # GuardDog - Python dependency security scanner
+  - repo: https://github.com/praetorian-inc/guarddog
+    rev: v0.1.13
+    hooks:
+      - id: guarddog
+        name: GuardDog - Python Dependency Security
+        entry: guarddog scan
+        language: python
+        files: ^(services/python-telemetry/requirements\.txt|services/python-telemetry/.*\.py)$
+        pass_filenames: false
+        additional_dependencies:
+          - guarddog-cli
+
+  # General Python linting
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: Black - Python Code Formatter
+        language: python
+        types: [python]
+        files: ^services/python-telemetry/
+
+  # Python flake8 linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 - Python Linter
+        language: python
+        types: [python]
+        files: ^services/python-telemetry/
+        args: ['--max-line-length=88']
+
+  # Go formatting
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+        name: Go Format
+        files: ^services/go-api-gateway/
+      - id: go-lint
+        name: Go Lint
+        files: ^services/go-api-gateway/
+
+  # Rust formatting
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+      - id: fmt
+        name: Rust Format
+        files: ^services/rust-data-store/
+      - id: cargo-check
+        name: Cargo Check
+        files: ^services/rust-data-store/
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        name: YAML Lint
+        args: ['-d', '{extends: default, rules: {line-length: {max: 120}}}']
+        files: \.(yaml|yml)$
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        files: \.(sh|bash)$
+
+  # Detect secrets in code
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json

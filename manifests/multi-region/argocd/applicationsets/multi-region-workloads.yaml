@@ -1,0 +1,153 @@
+# Argo CD ApplicationSet for Multi-Region Synchronization
+# Deploys workloads to both us-east-1 and eu-central-1 clusters
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-region-workloads
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: region-us-east-1
+            url: https://gr7.us-east-1.eks.amazonaws.com
+            region: us-east-1
+            clusterName: ci-cd-pipeline-primary
+          - cluster: region-eu-central-1
+            url: https://gr7.eu-central-1.eks.amazonaws.com
+            region: eu-central-1
+            clusterName: ci-cd-pipeline-secondary
+  template:
+    metadata:
+      name: 'core-service-{{region}}'
+      labels:
+        app.kubernetes.io/name: core-service
+        app.kubernetes.io/instance: '{{region}}'
+        environment: production
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/username/ci-cd-pipeline.git'
+        targetRevision: HEAD
+        path: 'k8s/base'
+        helm:
+          valueFiles:
+            - 'values-{{region}}.yaml'
+      destination:
+        server: '{{url}}'
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-region-networking
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: region-us-east-1
+            url: https://gr7.us-east-1.eks.amazonaws.com
+            region: us-east-1
+          - cluster: region-eu-central-1
+            url: https://gr7.eu-central-1.eks.amazonaws.com
+            region: eu-central-1
+  template:
+    metadata:
+      name: 'networking-{{region}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/username/ci-cd-pipeline.git'
+        targetRevision: HEAD
+        path: 'manifests/bleeding-edge/cilium'
+      destination:
+        server: '{{url}}'
+        namespace: kube-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-region-security
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: region-us-east-1
+            url: https://gr7.us-east-1.eks.amazonaws.com
+            region: us-east-1
+          - cluster: region-eu-central-1
+            url: https://gr7.eu-central-1.eks.amazonaws.com
+            region: eu-central-1
+  template:
+    metadata:
+      name: 'security-{{region}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/username/ci-cd-pipeline.git'
+        targetRevision: HEAD
+        path: 'manifests/bleeding-edge/spire'
+      destination:
+        server: '{{url}}'
+        namespace: spire
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-region-observability
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: region-us-east-1
+            url: https://gr7.us-east-1.eks.amazonaws.com
+            region: us-east-1
+          - cluster: region-eu-central-1
+            url: https://gr7.eu-central-1.eks.amazonaws.com
+            region: eu-central-1
+  template:
+    metadata:
+      name: 'observability-{{region}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/username/ci-cd-pipeline.git'
+        targetRevision: HEAD
+        path: 'manifests/bleeding-edge/opentelemetry'
+      destination:
+        server: '{{url}}'
+        namespace: observability
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

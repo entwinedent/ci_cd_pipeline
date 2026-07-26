@@ -1,0 +1,37 @@
+# Feature Flag Provider Configuration
+# Controls which feature flag provider is active
+
+provider:
+  # Options: "unleash" or "launchdarkly"
+  active: "unleash"
+
+unleash:
+  # Unleash self-hosted configuration
+  url: "http://unleash.unleash.svc.cluster.local:4242"
+  api_token: "default:development.unleash-insecure-api-token-change-me"
+  app_name: "ci-cd-pipeline"
+  environment: "development"
+
+launchdarkly:
+  # LaunchDarkly commercial configuration
+  sdk_key: "${LAUNCHDARKLY_SDK_KEY}"
+  app_name: "ci-cd-pipeline"
+  environment: "development"
+
+flags:
+  # Example feature flags
+  new_api_endpoint:
+    description: "Enable new API endpoint implementation"
+    default: false
+    
+  advanced_telemetry:
+    description: "Enable advanced telemetry collection"
+    default: true
+    
+  experimental_cache:
+    description: "Enable experimental caching layer"
+    default: false
+    
+  rate_limiting:
+    description: "Enable rate limiting on API gateway"
+    default: true
