@@ -96,6 +96,10 @@ func (s *Server) setupRoutes() {
 	s.router.HandleFunc("/readyz", handler.ReadinessCheck).Methods("GET")
 	s.router.HandleFunc("/livez", handler.LivenessCheck).Methods("GET")
 
+	// SEO endpoints
+	s.router.HandleFunc("/robots.txt", handler.RobotsTxt).Methods("GET")
+	s.router.HandleFunc("/sitemap.xml", handler.Sitemap).Methods("GET")
+
 	// API routes
 	s.router.HandleFunc("/api/v1/data/{key}", handler.GetData).Methods("GET")
 	s.router.HandleFunc("/api/v1/data/{key}", handler.SetData).Methods("POST")

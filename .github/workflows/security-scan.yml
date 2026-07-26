@@ -113,36 +113,42 @@ jobs:
 
       - name: Run Snyk to check Go dependencies
         run: |
-          snyk auth $SNYK_TOKEN || true
           cd services/go-api-gateway
-          snyk test --severity-threshold=high || true
+          snyk test --severity-threshold=high --detection-depth=3 || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk to check Rust dependencies
         run: |
-          snyk auth $SNYK_TOKEN || true
           cd services/rust-data-store
-          snyk test --severity-threshold=high || true
+          snyk test --severity-threshold=high --detection-depth=3 || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk to check Python dependencies
         run: |
-          snyk auth $SNYK_TOKEN || true
           cd services/python-telemetry
-          snyk test --severity-threshold=high || true
+          snyk test --severity-threshold=high --detection-depth=3 || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk to check Docker images
         run: |
-          snyk auth $SNYK_TOKEN || true
           snyk test go-api-gateway:test --severity-threshold=high --file=services/go-api-gateway/Dockerfile || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk to check Docker images (Rust)
         run: |
-          snyk auth $SNYK_TOKEN || true
           snyk test rust-data-store:test --severity-threshold=high --file=services/rust-data-store/Dockerfile || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk to check Docker images (Python)
         run: |
-          snyk auth $SNYK_TOKEN || true
           snyk test python-telemetry:test --severity-threshold=high --file=services/python-telemetry/Dockerfile || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Upload Snyk results
         if: always()
