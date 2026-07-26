@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Phylum Supply Chain Gate
 
 on:
@@ -14,6 +15,7 @@ jobs:
   phylum-scan:
     name: Phylum Package Analysis
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
 
@@ -23,28 +25,24 @@ jobs:
           echo "$HOME/.phylum" >> $GITHUB_PATH
 
       - name: Authenticate with Phylum
-        if: ${{ github.actor != 'dependabot[bot]' && secrets.PHYLUM_API_KEY != '' }}
         env:
           PHYLUM_API_KEY: ${{ secrets.PHYLUM_API_KEY }}
         run: |
           phylum auth token $PHYLUM_API_KEY
 
       - name: Scan Go dependencies
-        if: ${{ github.actor != 'dependabot[bot]' && secrets.PHYLUM_API_KEY != '' }}
         working-directory: services/go-api-gateway
         run: |
           phylum analyze go.sum --json > phylum-go-report.json || true
           phylum analyze go.sum
 
       - name: Scan Rust dependencies
-        if: ${{ github.actor != 'dependabot[bot]' && secrets.PHYLUM_API_KEY != '' }}
         working-directory: services/rust-data-store
         run: |
           phylum analyze Cargo.lock --json > phylum-rust-report.json || true
           phylum analyze Cargo.lock
 
       - name: Scan Python dependencies
-        if: ${{ github.actor != 'dependabot[bot]' && secrets.PHYLUM_API_KEY != '' }}
         working-directory: services/python-telemetry
         run: |
           pip install pip-audit
