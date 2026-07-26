@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   secret-scan:
     name: Secret Scanning
@@ -16,6 +20,7 @@ jobs:
           fetch-depth: 0
           
       - name: Run Gitleaks
+        if: ${{ github.actor != 'dependabot[bot]' || secrets.GITLEAKS_LICENSE != '' }}
         uses: gitleaks/gitleaks-action@e8b0f9b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
