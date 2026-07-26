@@ -185,6 +185,15 @@ jobs:
           tar -xzf k6-v0.54.0-linux-amd64.tar.gz
           sudo mv k6-v0.54.0-linux-amd64/k6 /usr/local/bin/
           k6 version
+
+      - name: Start services
+        run: |
+          docker run -d --name go-api-gateway -p 8080:8080 go-api-gateway:test
+          docker run -d --name rust-data-store -p 50051:50051 rust-data-store:test
+          docker run -d --name python-telemetry -p 8000:8000 python-telemetry:test
+          timeout 60 bash -c 'until curl -s http://localhost:8080/healthz; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8000/healthz; do sleep 2; done'
+        timeout-minutes: 5
         
       - name: Run load tests
         run: k6 run tests/load/load-test.js
@@ -222,7 +231,7 @@ jobs:
         
       - name: Run Go gateway Pact tests
         working-directory: tests/pact/go-gateway-consumer
-        run: npm test
+        run: npx jest
         
       - name: Set up Python
         uses: actions/setup-python@v5
