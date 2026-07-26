@@ -46,25 +46,31 @@ func (h *HTTPHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Health check failed: %v", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]bool{"healthy": false})
+		if err := json.NewEncoder(w).Encode(map[string]bool{"healthy": false}); err != nil {
+			log.Printf("Failed to encode response: %v", err)
+		}
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]bool{"healthy": healthy})
+	if err := json.NewEncoder(w).Encode(map[string]bool{"healthy": healthy}); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+	}
 }
 
 // RobotsTxt returns the robots.txt content
 func (h *HTTPHandler) RobotsTxt(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User-agent: *\nDisallow: /api/\n"))
+	if _, err := w.Write([]byte("User-agent: *\nDisallow: /api/\n")); err != nil {
+		log.Printf("Failed to write robots.txt: %v", err)
+	}
 }
 
 // Sitemap returns the sitemap.xml content
 func (h *HTTPHandler) Sitemap(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
+	sitemap := `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>http://localhost:8080/healthz</loc>
@@ -72,7 +78,10 @@ func (h *HTTPHandler) Sitemap(w http.ResponseWriter, r *http.Request) {
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-</urlset>`))
+</urlset>`
+	if _, err := w.Write([]byte(sitemap)); err != nil {
+		log.Printf("Failed to write sitemap.xml: %v", err)
+	}
 }
 
 // LivenessCheck returns the liveness status of the gateway (always healthy if running)
