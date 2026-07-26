@@ -62,7 +62,7 @@ jobs:
           vcluster disconnect ${{ env.CLUSTER_NAME }}
       
       - name: Comment PR with cluster info
-        uses: actions/github-script@d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           script: |
             github.rest.issues.createComment({
