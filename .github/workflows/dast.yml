@@ -33,7 +33,7 @@ jobs:
           timeout 60 bash -c 'until curl -s http://localhost:8000/healthz; do sleep 2; done'
           
       - name: Run ZAP Baseline Scan on API Gateway
-        uses: zaproxy/action-baseline@0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0
+        uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://localhost:8080'
           rules_file_name: '.zap/rules.tsv'

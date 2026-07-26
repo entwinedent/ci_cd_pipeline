@@ -51,26 +51,26 @@ jobs:
           sarif_file: 'trivy-go-results.sarif'
           
       - name: Run Trivy on Rust image
-        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: rust-data-store:test
           format: 'sarif'
           output: 'trivy-rust-results.sarif'
           
       - name: Upload Trivy Rust results
-        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-rust-results.sarif'
           
       - name: Run Trivy on Python image
-        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: python-telemetry:test
           format: 'sarif'
           output: 'trivy-python-results.sarif'
           
       - name: Upload Trivy Python results
-        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-python-results.sarif'
 

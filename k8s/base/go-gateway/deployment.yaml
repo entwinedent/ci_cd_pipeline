@@ -16,8 +16,20 @@ spec:
         app: go-api-gateway
         version: v1
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
       - name: api-gateway
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
         image: ghcr.io/username/ci-cd-pipeline/go-api-gateway:latest
         imagePullPolicy: Always
         ports:

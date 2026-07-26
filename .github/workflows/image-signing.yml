@@ -72,13 +72,22 @@ jobs:
           cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:latest
       
       - name: Verify Go image signature
-        run: cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
+        run: |
+          cosign verify ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }} \
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/image-signing.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
       
       - name: Verify Rust image signature
-        run: cosign verify ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
+        run: |
+          cosign verify ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }} \
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/image-signing.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
       
       - name: Verify Python image signature
-        run: cosign verify ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}
+        run: |
+          cosign verify ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }} \
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/image-signing.yml@refs/heads/main" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
       
       - name: Attach SBOM to Go image
         run: |

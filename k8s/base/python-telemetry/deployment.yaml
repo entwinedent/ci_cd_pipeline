@@ -16,8 +16,20 @@ spec:
         app: python-telemetry
         version: v1
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
       - name: telemetry-collector
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
         image: ghcr.io/username/ci-cd-pipeline/python-telemetry:latest
         imagePullPolicy: Always
         ports:

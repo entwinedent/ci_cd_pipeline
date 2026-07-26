@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Phylum CLI
         run: |
-          curl -sSfL https://sh.phylum.io | sh
+          curl -sSfL https://sh.phylum.io | sh -s -- --yes
           echo "$HOME/.phylum" >> $GITHUB_PATH
 
       - name: Authenticate with Phylum
