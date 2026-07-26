@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 class AnomalyDetector:
     def __init__(self, window_size: int = 100, threshold_std: float = 3.0):
-        self.metric_history = {}  # service -> metric_name -> deque of values
+        self.metric_history: Dict[str, Dict[str, deque]] = {}  # service -> metric_name -> deque of values
         self.window_size = window_size
         self.threshold_std = threshold_std
-        self.detected_anomalies = deque(maxlen=1000)
+        self.detected_anomalies: deque[Dict[str, Any]] = deque(maxlen=1000)
     
     def detect_anomaly(self, metric_data: Dict[str, Any]) -> bool:
         """Detect if a metric value is anomalous using statistical analysis"""

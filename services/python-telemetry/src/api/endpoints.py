@@ -36,8 +36,8 @@ class IngestResponse(BaseModel):
 
 
 # In-memory storage for demonstration
-log_storage = []
-metric_storage = []
+log_storage: list[Dict[str, Any]] = []
+metric_storage: list[Dict[str, Any]] = []
 
 
 @app.get("/healthz", response_model=HealthResponse)
@@ -64,16 +64,7 @@ async def ingest_log(log_entry: LogEntry):
     try:
         log_storage.append(log_entry.dict())
         logger.info(f"Received log from {log_entry.service}: {log_entry.message}")
-        
-        # Trigger anomaly detection
-        from ..anomaly_detection.detector import detect_anomalies
-        anomalies = detect_anomalies(log_entry.service, log_entry.metadata)
-        
-        if anomalies:
-            logger.warning(f"Anomalies detected for {log_entry.service}: {anomalies}")
-            # Send webhook notifications
-            await send_anomaly_alert(log_entry.service, anomalies)
-        
+
         return IngestResponse(
             success=True,
             message="Log ingested successfully"

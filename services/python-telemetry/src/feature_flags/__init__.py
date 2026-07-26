@@ -32,10 +32,10 @@ class FeatureFlagProvider(Protocol):
 @dataclass
 class UnleashConfig:
     """Unleash configuration."""
-    url: str = None
-    api_token: str = None
-    app_name: str = None
-    environment: str = None
+    url: Optional[str] = None
+    api_token: Optional[str] = None
+    app_name: Optional[str] = None
+    environment: Optional[str] = None
     
     def __post_init__(self):
         if self.url is None:
@@ -77,9 +77,9 @@ class LaunchDarklyConfig:
 @dataclass
 class Config:
     """Feature flag configuration."""
-    provider: ProviderType = None
-    unleash: UnleashConfig = None
-    launchdarkly: LaunchDarklyConfig = None
+    provider: Optional[ProviderType] = None
+    unleash: Optional[UnleashConfig] = None
+    launchdarkly: Optional[LaunchDarklyConfig] = None
     
     def __post_init__(self):
         if self.provider is None:

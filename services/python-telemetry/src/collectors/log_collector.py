@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class LogCollector:
     def __init__(self, max_entries: int = 10000):
-        self.log_buffer = deque(maxlen=max_entries)
+        self.log_buffer: deque[Dict[str, Any]] = deque(maxlen=max_entries)
         self.max_entries = max_entries
     
     def process_log(self, log_entry: Dict[str, Any]) -> None:
