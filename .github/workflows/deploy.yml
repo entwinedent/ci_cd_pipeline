@@ -75,8 +75,7 @@ jobs:
           cache-to: type=gha,mode=max
           
       - name: Install Cosign
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sh -s -- -b /usr/local/bin
+        uses: sigstore/cosign-installer@v3.5.0
           
       - name: Sign Go image with Cosign
         run: |

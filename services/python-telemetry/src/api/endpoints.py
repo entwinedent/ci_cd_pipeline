@@ -89,7 +89,9 @@ async def ingest_log(log_entry: LogEntry):
 @app.get("/api/v1/logs/{service}")
 async def get_logs(service: str, limit: int = 100):
     """Retrieve logs for a specific service"""
-    service_logs = [log for log in log_storage if log.get("service") == service]
+    service_logs = [
+        log for log in log_storage if log.get("service") == service
+    ]
     return service_logs[-limit:]
 
 

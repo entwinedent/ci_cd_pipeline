@@ -114,6 +114,7 @@ impl InMemoryCache {
         metrics.push_back(point);
     }
     
+    #[allow(dead_code)]
     pub async fn get_metrics(&self) -> Vec<MetricPoint> {
         let metrics = self.metrics.read().await;
         metrics.iter().cloned().collect()
