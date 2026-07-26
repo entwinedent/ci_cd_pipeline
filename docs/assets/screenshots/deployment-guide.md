@@ -65,7 +65,7 @@ kubectl apply -f manifests/bleeding-edge/unleash/unleash-config.yaml
 ## Current Status
 
 - ✅ Docker Compose services running (go-api-gateway, python-telemetry, rust-data-store)
-- ❌ Kind not installed on this Windows system
+- ✅ Kind installed via Docker
 - ✅ Installation scripts available for all platform services
 - ✅ Screenshot documentation created
 

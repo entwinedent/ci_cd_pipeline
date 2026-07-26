@@ -169,9 +169,9 @@ If you have existing GitHub Actions runs:
 
 ## Current Limitations
 
-- Kind not installed on current Windows system
+- Kind installed via Docker
 - GitHub CLI not available for triggering workflows
-- Platform services cannot be deployed without Kind
+- Platform services can be deployed via Kind cluster
 
 ## Next Steps
 

@@ -166,8 +166,7 @@ For detailed deployment status and additional screenshot capture instructions, s
 ## 📋 Prerequisites
 
 - **WSL 2** with Ubuntu (Windows) or native Linux
-- **Docker** Desktop or Docker Engine
-- **Kind** (Kubernetes in Docker)
+- **Docker** Desktop or Docker Engine (Kind runs on Docker)
 - **kubectl** - Kubernetes CLI
 - **Helm** - Package manager
 - **Go** 1.22+
