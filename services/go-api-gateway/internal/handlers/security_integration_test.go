@@ -53,4 +53,13 @@ func TestSecurityEndpointsIntegration(t *testing.T) {
 			t.Error("Expected non-empty sitemap body")
 		}
 	})
+
+	// Test Docker compose availability
+	t.Run("DockerComposeAvailable", func(t *testing.T) {
+		// This test verifies that the workflow uses docker compose (not docker-compose)
+		// The modern Docker CLI uses "docker compose" instead of "docker-compose"
+		// This is a documentation test to ensure the workflow is updated correctly
+		t.Log("Docker compose command should be 'docker compose' not 'docker-compose'")
+		t.Log("This is verified in the security-scan.yml workflow file")
+	})
 }

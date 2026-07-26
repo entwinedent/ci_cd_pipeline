@@ -184,6 +184,7 @@ jobs:
           wget https://github.com/grafana/k6/releases/download/v0.54.0/k6-v0.54.0-linux-amd64.tar.gz
           tar -xzf k6-v0.54.0-linux-amd64.tar.gz
           sudo mv k6-v0.54.0-linux-amd64/k6 /usr/local/bin/
+          k6 version
         
       - name: Run load tests
         run: k6 run tests/load/load-test.js
