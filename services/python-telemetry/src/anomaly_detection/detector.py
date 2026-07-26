@@ -2,7 +2,7 @@ import logging
 from typing import Dict, Any, List
 from collections import deque
 import statistics
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 

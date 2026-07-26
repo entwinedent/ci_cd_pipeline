@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, Any
 from collections import deque
-import json
 
 logger = logging.getLogger(__name__)
 

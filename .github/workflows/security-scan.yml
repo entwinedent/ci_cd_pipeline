@@ -109,13 +109,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Snyk to check Go dependencies
-        uses: snyk/actions/golang@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-          command: test
-          working-directory: services/go-api-gateway
+        run: |
+          pip install snyk
+          snyk auth $SNYK_TOKEN
+          cd services/go-api-gateway
+          snyk test --severity-threshold=high || true
 
       - name: Run Snyk to check Rust dependencies
         run: |

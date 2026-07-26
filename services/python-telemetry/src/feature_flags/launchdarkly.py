@@ -1,6 +1,6 @@
 """LaunchDarkly provider implementation for feature flags."""
 
-from . import FeatureFlagProvider, LaunchDarklyConfig
+from . import LaunchDarklyConfig
 import os
 
 

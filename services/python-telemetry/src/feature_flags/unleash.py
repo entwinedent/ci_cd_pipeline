@@ -1,6 +1,6 @@
 """Unleash provider implementation for feature flags."""
 
-from . import FeatureFlagProvider, UnleashConfig
+from . import UnleashConfig
 import os
 
 

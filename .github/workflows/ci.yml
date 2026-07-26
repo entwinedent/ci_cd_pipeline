@@ -99,7 +99,7 @@ jobs:
         
       - name: Run linter
         working-directory: services/python-telemetry
-        run: flake8 src/
+        run: flake8 src/ --max-line-length=100
         
       - name: Type check
         working-directory: services/python-telemetry

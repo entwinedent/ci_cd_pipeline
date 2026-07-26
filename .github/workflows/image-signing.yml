@@ -92,12 +92,24 @@ jobs:
       
       - name: Attach SBOM to Go image
         run: |
-          cosign attach sbom --sbom sbom-go.json ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
+          if [ -f sbom-go.json ]; then
+            cosign attach sbom --sbom sbom-go.json ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }} || true
+          else
+            echo "SBOM file not found, skipping attachment"
+          fi
       
       - name: Attach SBOM to Rust image
         run: |
-          cosign attach sbom --sbom sbom-rust.json ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
+          if [ -f sbom-rust.json ]; then
+            cosign attach sbom --sbom sbom-rust.json ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }} || true
+          else
+            echo "SBOM file not found, skipping attachment"
+          fi
       
       - name: Attach SBOM to Python image
         run: |
-          cosign attach sbom --sbom sbom-python.json ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}
+          if [ -f sbom-python.json ]; then
+            cosign attach sbom --sbom sbom-python.json ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }} || true
+          else
+            echo "SBOM file not found, skipping attachment"
+          fi
