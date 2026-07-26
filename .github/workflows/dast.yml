@@ -25,7 +25,7 @@ jobs:
           
       - name: Start services for DAST
         run: |
-          docker-compose up -d
+          docker compose up -d
           
       - name: Wait for services to be ready
         run: |
@@ -59,4 +59,4 @@ jobs:
       - name: Stop services
         if: always()
         run: |
-          docker-compose down
+          docker compose down

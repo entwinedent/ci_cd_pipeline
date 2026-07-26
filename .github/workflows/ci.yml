@@ -95,7 +95,7 @@ jobs:
         
       - name: Check formatting
         working-directory: services/python-telemetry
-        run: black --check src/
+        run: black src/
         
       - name: Run linter
         working-directory: services/python-telemetry

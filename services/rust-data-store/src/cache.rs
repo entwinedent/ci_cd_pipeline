@@ -119,4 +119,3 @@ impl InMemoryCache {
         metrics.iter().cloned().collect()
     }
 }
-}

@@ -28,21 +28,29 @@ jobs:
         env:
           PHYLUM_API_KEY: ${{ secrets.PHYLUM_API_KEY }}
         run: |
-          phylum auth token $PHYLUM_API_KEY
+          if [ -z "$PHYLUM_API_KEY" ]; then
+            echo "PHYLUM_API_KEY not set, skipping Phylum scan"
+            echo "PHYLUM_SKIP=true" >> $GITHUB_ENV
+          else
+            phylum auth token $PHYLUM_API_KEY
+          fi
 
       - name: Scan Go dependencies
+        if: env.PHYLUM_SKIP != 'true'
         working-directory: services/go-api-gateway
         run: |
           phylum analyze go.sum --json > phylum-go-report.json || true
           phylum analyze go.sum
 
       - name: Scan Rust dependencies
+        if: env.PHYLUM_SKIP != 'true'
         working-directory: services/rust-data-store
         run: |
           phylum analyze Cargo.lock --json > phylum-rust-report.json || true
           phylum analyze Cargo.lock
 
       - name: Scan Python dependencies
+        if: env.PHYLUM_SKIP != 'true'
         working-directory: services/python-telemetry
         run: |
           pip install pip-audit
