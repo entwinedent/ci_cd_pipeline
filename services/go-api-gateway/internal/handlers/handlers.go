@@ -42,6 +42,9 @@ func (h *HTTPHandler) RegisterRoutes(router *mux.Router) {
 // HealthCheck returns the health status of the service
 func (h *HTTPHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, private")
 	healthy, err := h.dataStore.HealthCheck()
 	if err != nil {
 		log.Printf("Health check failed: %v", err)
@@ -60,6 +63,9 @@ func (h *HTTPHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 // RobotsTxt returns the robots.txt content
 func (h *HTTPHandler) RobotsTxt(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cache-Control", "public, max-age=3600")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("User-agent: *\nDisallow: /api/\n")); err != nil {
 		log.Printf("Failed to write robots.txt: %v", err)
@@ -69,6 +75,9 @@ func (h *HTTPHandler) RobotsTxt(w http.ResponseWriter, r *http.Request) {
 // Sitemap returns the sitemap.xml content
 func (h *HTTPHandler) Sitemap(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cache-Control", "public, max-age=3600")
 	w.WriteHeader(http.StatusOK)
 	sitemap := `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

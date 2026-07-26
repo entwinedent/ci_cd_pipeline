@@ -151,7 +151,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: tests/e2e
-        run: npm install
+        run: npm ci --ignore-scripts
 
       - name: Install Playwright browsers
         working-directory: tests/e2e
@@ -178,6 +178,13 @@ jobs:
     needs: [docker-build]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: |
+          docker build -t go-api-gateway:test services/go-api-gateway
+          docker build -t rust-data-store:test services/rust-data-store
+          docker build -t python-telemetry:test services/python-telemetry
+        timeout-minutes: 10
 
       - name: Install k6
         run: |
