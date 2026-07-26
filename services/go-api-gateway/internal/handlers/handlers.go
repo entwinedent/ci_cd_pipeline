@@ -29,44 +29,50 @@ func NewHTTPHandler(dataStore DataStoreClient) *HTTPHandler {
 	}
 }
 
-// HealthCheck returns the health status of the gateway
+// RegisterRoutes registers all HTTP routes
+func (h *HTTPHandler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/healthz", h.HealthCheck).Methods("GET")
+	router.HandleFunc("/robots.txt", h.RobotsTxt).Methods("GET")
+	router.HandleFunc("/sitemap.xml", h.Sitemap).Methods("GET")
+	router.HandleFunc("/api/v1/data/{key}", h.GetData).Methods("GET")
+	router.HandleFunc("/api/v1/data/{key}", h.SetData).Methods("POST")
+	router.HandleFunc("/api/v1/data/{key}", h.DeleteData).Methods("DELETE")
+}
+
+// HealthCheck returns the health status of the service
 func (h *HTTPHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	// Check data store health
 	healthy, err := h.dataStore.HealthCheck()
 	if err != nil {
-		log.Printf("Health check error: %v", err)
+		log.Printf("Health check failed: %v", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
-		if err := json.NewEncoder(w).Encode(map[string]interface{}{
-			"status": "unhealthy",
-			"error":  err.Error(),
-		}); err != nil {
-			log.Printf("Failed to encode response: %v", err)
-		}
+		json.NewEncoder(w).Encode(map[string]bool{"healthy": false})
 		return
 	}
-
-	if !healthy {
-		log.Printf("Health check returned unhealthy")
-		w.WriteHeader(http.StatusServiceUnavailable)
-		if err := json.NewEncoder(w).Encode(map[string]interface{}{
-			"status": "unhealthy",
-			"error":  "data store reported unhealthy",
-		}); err != nil {
-			log.Printf("Failed to encode response: %v", err)
-		}
-		return
-	}
-
-	log.Printf("Health check successful")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":    "healthy",
-		"timestamp": time.Now().UTC().Format(time.RFC3339),
-	}); err != nil {
-		log.Printf("Failed to encode response: %v", err)
-	}
+	json.NewEncoder(w).Encode(map[string]bool{"healthy": healthy})
+}
+
+// RobotsTxt returns the robots.txt content
+func (h *HTTPHandler) RobotsTxt(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User-agent: *\nDisallow: /api/\n"))
+}
+
+// Sitemap returns the sitemap.xml content
+func (h *HTTPHandler) Sitemap(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/xml")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://localhost:8080/healthz</loc>
+    <lastmod>` + time.Now().Format("2006-01-02") + `</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`))
 }
 
 // LivenessCheck returns the liveness status of the gateway (always healthy if running)
