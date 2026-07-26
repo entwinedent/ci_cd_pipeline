@@ -1,24 +1,115 @@
-# Binaries for programs and plugins
+# Secrets and Credentials
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.der
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+secrets/
+credentials/
+*.credentials
+*.secret
+*.token
+*.password
+*.auth
+
+# API Keys and Tokens
+api_key.txt
+api_keys.txt
+secret_key.txt
+secret_keys.txt
+access_key.txt
+access_keys.txt
+private_key.txt
+private_keys.txt
+service_account.json
+service-account.json
+*.service-account
+google-credentials.json
+aws-credentials.json
+azure-credentials.json
+
+# Database Credentials
+database.yml
+database.local.yml
+*.db
+*.sqlite
+*.sqlite3
+passwords.txt
+passwords.csv
+
+# SSH Keys
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+ssh_config
+known_hosts
+
+# Certificate Signing Requests
+*.csr
+*.p10
+
+# Backup Files with Potential Secrets
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*~
+
+# OS-Specific Credential Files
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Temporary Credential Files
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+
+# CI/CD and Build Artifacts
+build/
+dist/
+out/
+target/
+bin/
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
+*.a
+*.lib
 
-# Test binary, built with `go test -c`
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# Language-Specific
+# Go
 *.test
-
-# Output of the go coverage tool
 *.out
-
-# Go workspace file
 go.work
-
-# Dependency directories
 vendor/
 
 # Rust
-target/
 Cargo.lock
 **/*.rs.bk
 *.pdb
@@ -27,11 +118,8 @@ Cargo.lock
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -57,34 +145,40 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
 # Kubernetes
 *.kubeconfig
 kubeconfig
+kubeconfig-*
+*.kubeconfig-*
 
 # Docker
 .dockerignore
+docker-compose.override.yml
 
 # Logs
 *.log
 logs/
+*.log.*
 
-# Temporary files
+# Temporary and Cache Files
 tmp/
 temp/
 *.tmp
+*.temp
+.cache/
+.cache/
 
-# Secrets
-*.pem
-*.key
-*.crt
-.env.local
-.env.*.local
-secrets/
+# Package Manager Lock Files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# Gemfile.lock
+# composer.lock
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
