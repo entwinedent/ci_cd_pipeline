@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
 
       - name: Install Phylum CLI
         run: |
@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload Phylum reports
         if: always()
-        uses: actions/upload-artifact@65462800fd760344b1a7b4102951549b39ef5f55
+        uses: actions/upload-artifact@v4
         with:
           name: phylum-reports
           path: |

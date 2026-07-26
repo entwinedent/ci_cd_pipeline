@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       - name: Set up kubectl
-        uses: azure/setup-kubectl@b3b1b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3
+        uses: azure/setup-kubectl@v4
         with:
           version: 'v1.29.0'
       
       - name: Set up Helm
-        uses: azure/setup-helm@c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4
+        uses: azure/setup-helm@v4
         with:
           version: 'v3.14.0'
       
@@ -92,7 +92,7 @@ jobs:
     if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
     steps:
       - name: Set up kubectl
-        uses: azure/setup-kubectl@b3b1b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3
+        uses: azure/setup-kubectl@v4
         with:
           version: 'v1.29.0'
       

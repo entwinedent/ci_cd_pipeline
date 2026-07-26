@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+        uses: actions/checkout@v4
 
       # 1. Mock Infracost for Cloud Infrastructure Delta (Terraform)
       - name: Setup Python
-        uses: actions/setup-python@0c52d7470c3bc7653bb7179d7ab6a8bb0cc0b2b9
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -174,7 +174,7 @@ jobs:
       # 5. Upload Cost Reports as Artifacts
       - name: Upload Cost Reports
         if: always()
-        uses: actions/upload-artifact@65462800fd760344b1a7b4102951549b39ef5f55
+        uses: actions/upload-artifact@v4
         with:
           name: cost-reports
           path: |

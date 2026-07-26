@@ -16,12 +16,12 @@ jobs:
     name: Secret Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@e8b0f9b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
@@ -30,7 +30,7 @@ jobs:
     name: Container Security Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
       
       - name: Build images
         run: |
@@ -39,14 +39,14 @@ jobs:
           docker build -t python-telemetry:test services/python-telemetry
           
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@1f0d3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: go-api-gateway:test
           format: 'sarif'
           output: 'trivy-go-results.sarif'
           
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@4a1b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-go-results.sarif'
           
@@ -78,15 +78,15 @@ jobs:
     name: Static Application Security Testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
 
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c
+        uses: returntocorp/semgrep-action@v1
         with:
           config: auto
 
       - name: Run Kube-linter
-        uses: stackrox/kube-linter-action@6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6d6
+        uses: stackrox/kube-linter-action@v1
         with:
           directory: k8s/base
 
@@ -94,10 +94,10 @@ jobs:
     name: Snyk Security Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8f5a0edc470f0c95d564fd9bf4161a8f958
+      - uses: actions/checkout@v4
 
       - name: Run Snyk to check Go dependencies
-        uses: snyk/actions/golang@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/golang@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -106,7 +106,7 @@ jobs:
           working-directory: services/go-api-gateway
 
       - name: Run Snyk to check Rust dependencies
-        uses: snyk/actions/rust@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/rust@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -115,7 +115,7 @@ jobs:
           working-directory: services/rust-data-store
 
       - name: Run Snyk to check Python dependencies
-        uses: snyk/actions/python@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -124,7 +124,7 @@ jobs:
           working-directory: services/python-telemetry
 
       - name: Run Snyk to check Docker images
-        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -132,7 +132,7 @@ jobs:
           args: --severity-threshold=high --file=services/go-api-gateway/Dockerfile
 
       - name: Run Snyk to check Docker images (Rust)
-        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -140,7 +140,7 @@ jobs:
           args: --severity-threshold=high --file=services/rust-data-store/Dockerfile
 
       - name: Run Snyk to check Docker images (Python)
-        uses: snyk/actions/docker@0b0d1e7e8b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+        uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -149,7 +149,7 @@ jobs:
 
       - name: Upload Snyk results
         if: always()
-        uses: actions/upload-artifact@65462800fd760344b1a7b4102951549b39ef5f55
+        uses: actions/upload-artifact@v4
         with:
           name: snyk-results
           path: snyk-report.sarif
