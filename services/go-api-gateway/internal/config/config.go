@@ -14,7 +14,7 @@ type Config struct {
 
 // LoadConfig loads configuration from environment variables
 func LoadConfig() *Config {
-	dataStoreTarget := getEnv("DATA_STORE_TARGET", "localhost:50051")
+	dataStoreTarget := getEnv("DATA_STORE_TARGET", "127.0.0.1:50051")
 	// Ensure data store target has http:// prefix if not already present
 	if dataStoreTarget != "" && !hasProtocol(dataStoreTarget) {
 		dataStoreTarget = "http://" + dataStoreTarget

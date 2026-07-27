@@ -191,7 +191,7 @@ jobs:
         run: |
           docker run -d --name rust-data-store -p 50051:50051 rust-data-store:test
           docker run -d --name python-telemetry -p 8000:8000 python-telemetry:test
-          docker run -d --name go-api-gateway -p 8080:8080 --link rust-data-store:rust-data-store go-api-gateway:test
+          docker run -d --name go-api-gateway -p 8080:8080 --link rust-data-store:rust-data-store -e DATA_STORE_TARGET=rust-data-store:50051 go-api-gateway:test
           echo "Waiting for services to start..."
           sleep 15
           echo "Checking service health..."

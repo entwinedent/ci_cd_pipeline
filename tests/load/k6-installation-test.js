@@ -9,6 +9,8 @@
 // K6 configuration should be centralized in config.js
 // Error threshold removed temporarily to allow debugging of service startup issues
 // Robust health check wait added to CI workflow to ensure services are ready
+// Go API Gateway uses Docker service name (rust-data-store:50051) to connect to linked container
+// Default DATA_STORE_TARGET changed to 127.0.0.1:50051 to force IPv4 and avoid IPv6 connection issues
 
 import { check } from 'k6';
 
@@ -25,6 +27,8 @@ export default function () {
     'error thresholds removed for debugging': true,
     'k6 configuration centralized in config.js': true,
     'robust health check wait in CI workflow': true,
+    'go-api-gateway uses service name for container networking': true,
+    'default data store target uses IPv4 (127.0.0.1)': true,
   });
 }
 

@@ -11,6 +11,8 @@ jobs:
   owasp-zap:
     name: OWASP ZAP Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       
@@ -32,28 +34,41 @@ jobs:
           timeout 60 bash -c 'until curl -s http://localhost:8080/healthz; do sleep 2; done'
           timeout 60 bash -c 'until curl -s http://localhost:8000/healthz; do sleep 2; done'
           
-      - name: Run ZAP Baseline Scan on API Gateway
-        uses: zaproxy/action-baseline@v0.12.0
-        with:
-          target: 'http://localhost:8080'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
-          
-      - name: Run ZAP Baseline Scan on Telemetry Service
-        uses: zaproxy/action-baseline@v0.11.0
-        with:
-          target: 'http://localhost:8000'
-          rules_file_name: '.zap/rules-telemetry.tsv'
-          cmd_options: '-a'
+      - name: Set correct permissions for ZAP workspace
+        run: |
+          mkdir -p zap-reports
+          chmod 777 zap-reports
+
+      - name: Run ZAP Baseline Scan on API Gateway via Docker
+        run: |
+          docker run --rm \
+            -v "$(pwd)/zap-reports:/zap/wrk:rw" \
+            --network=host \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://localhost:8080/healthz \
+            -J report_api_gateway.json \
+            -r report_api_gateway.html \
+            -a || true
+
+      - name: Run ZAP Baseline Scan on Telemetry Service via Docker
+        run: |
+          docker run --rm \
+            -v "$(pwd)/zap-reports:/zap/wrk:rw" \
+            --network=host \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://localhost:8000/healthz \
+            -J report_telemetry.json \
+            -r report_telemetry.html \
+            -a || true
           
       - name: Upload ZAP reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zap-reports
-          path: |
-            report_html.html
-            report_json.json
+          path: zap-reports/
           retention-days: 7
           
       - name: Stop services

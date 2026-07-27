@@ -4,8 +4,8 @@ set -e
 echo "Navigating to E2E directory..."
 cd "$(dirname "$0")"
 
-echo "Installing Playwright dependencies with scripts enabled..."
-npm install --allow-scripts
+echo "Installing Playwright dependencies..."
+npm install
 
 echo "Ensuring local binaries have correct execution permissions..."
 chmod +x ./node_modules/.bin/* || true
