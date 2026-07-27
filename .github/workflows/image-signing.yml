@@ -59,18 +59,66 @@ jobs:
       
       - name: Sign Go image
         run: |
-          cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}
-          cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:latest
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:${{ github.sha }}; then
+              echo "Successfully signed go-api-gateway:${{ github.sha }}"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/go-api-gateway:latest; then
+              echo "Successfully signed go-api-gateway:latest"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
       
       - name: Sign Rust image
         run: |
-          cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}
-          cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:latest
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:${{ github.sha }}; then
+              echo "Successfully signed rust-data-store:${{ github.sha }}"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/rust-data-store:latest; then
+              echo "Successfully signed rust-data-store:latest"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
       
       - name: Sign Python image
         run: |
-          cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}
-          cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:latest
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:${{ github.sha }}; then
+              echo "Successfully signed python-telemetry:${{ github.sha }}"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          for i in {1..5}; do
+            if cosign sign --yes ghcr.io/${{ github.repository }}/python-telemetry:latest; then
+              echo "Successfully signed python-telemetry:latest"
+              break
+            else
+              echo "Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
       
       - name: Verify Go image signature
         run: |

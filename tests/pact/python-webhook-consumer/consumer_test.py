@@ -14,7 +14,7 @@ def test_webhook_alert_success():
         'action': 'rollback'
     }
     
-    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
+    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('an anomaly alert webhook')
@@ -38,7 +38,7 @@ def test_webhook_alert_medium_severity():
         'action': 'monitor'
     }
     
-    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
+    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('a medium severity alert')
@@ -51,7 +51,7 @@ def test_webhook_alert_medium_severity():
 
 def test_webhook_failure_retry():
     """Test webhook failure and retry logic"""
-    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
+    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is temporarily unavailable')
      .upon_receiving('an alert during webhook failure')
