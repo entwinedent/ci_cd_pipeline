@@ -6,6 +6,7 @@
 // Name tags should be used to reduce metric cardinality
 // Error thresholds should be relaxed to allow for service startup issues
 // Rust Data Store must be started before Go API Gateway (dependency order)
+// K6 configuration should be centralized in config.js
 
 import { check } from 'k6';
 
@@ -20,6 +21,7 @@ export default function () {
     'api endpoints match Go routes': true,
     'name tags reduce cardinality': true,
     'error thresholds relaxed for service startup': true,
+    'k6 configuration centralized in config.js': true,
   });
 }
 

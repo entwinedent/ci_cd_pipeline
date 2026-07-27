@@ -149,17 +149,11 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Install dependencies
-        working-directory: tests/e2e
-        run: npm install --ignore-scripts
-
-      - name: Install Playwright browsers
-        working-directory: tests/e2e
-        run: npx playwright install --with-deps
-
       - name: Run Playwright tests
         working-directory: tests/e2e
-        run: npx playwright test
+        run: |
+          chmod +x run-e2e.sh
+          ./run-e2e.sh
         env:
           API_GATEWAY_URL: http://localhost:8080
           TELEMETRY_URL: http://localhost:8000
@@ -229,7 +223,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: k6-results
-          path: tests/load/*.json
+          path: tests/load/results/*.json
 
   pact-tests:
     name: Pact Contract Tests
@@ -243,15 +237,11 @@ jobs:
         with:
           node-version: '24'
           
-      - name: Install Go gateway Pact dependencies
-        working-directory: tests/pact/go-gateway-consumer
-        run: |
-          npm install
-          ls -la node_modules/.bin/ | head -20
-        
       - name: Run Go gateway Pact tests
         working-directory: tests/pact/go-gateway-consumer
-        run: npx jest
+        run: |
+          chmod +x run-pact.sh
+          ./run-pact.sh
         
       - name: Set up Python
         uses: actions/setup-python@v5

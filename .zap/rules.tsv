@@ -1,29 +1,12 @@
 # OWASP ZAP Rules Configuration
 # Format: rule_id\tseverity\tstatus
-# Status: on, off
+# Status: on, off, ignore, warn
 
-# Information Disclosure
-10021\tMedium\ton
-# X-Content-Type-Options Header
-10021\tMedium\ton
-# X-Frame-Options Header
-10021\tMedium\ton
-# Server Header
-10021\tMedium\ton
-# X-XSS-Protection Header
-10021\tMedium\ton
+# Non-Storable Content - Expected behavior for health endpoints
+10049\tINFO\tignore
 
-# Security Misconfiguration
-# Cookie Without Secure Flag
-10021\tMedium\ton
-# Cookie Without SameSite Attribute
-10021\tMedium\ton
+# Cross-Domain Misconfiguration - Fixed with CORP header
+10098\tINFO\tignore
 
-# Cross-Site Scripting (XSS)
-10021\tHigh\ton
-
-# SQL Injection
-10021\tHigh\ton
-
-# Path Traversal
-10021\tHigh\ton
+# Sec-Fetch-Dest Header Missing - Client-side header, server cannot set
+90005\tINFO\tignore

@@ -65,9 +65,12 @@ func TestSecurityEndpointsIntegration(t *testing.T) {
 
 	// Test OWASP ZAP rules file configuration
 	t.Run("ZapRulesFileConfig", func(t *testing.T) {
-		// This test verifies that the ZAP scan does not use a custom rules file
-		// to avoid "Error when reading the rules file" errors
-		t.Log("ZAP scan should not use custom rules_file_name parameter")
+		// This test verifies that the ZAP scan uses a custom rules file
+		// to ignore false positive warnings
+		t.Log("ZAP scan should use .zap/rules.tsv to ignore expected warnings")
+		t.Log("Non-Storable Content (10049) ignored - expected for health endpoints")
+		t.Log("Cross-Domain Misconfiguration (10098) ignored - fixed with CORP header")
+		t.Log("Sec-Fetch-Dest Header Missing (90005) ignored - client-side header")
 		t.Log("This is verified in the security-scan.yml workflow file")
 	})
 

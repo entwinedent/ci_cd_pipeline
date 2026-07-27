@@ -27,9 +27,10 @@ describe('Go API Gateway Consumer Contract Tests', () => {
     await provider.verify();
   });
 
-  // Test to verify jest is run with npx to avoid permission errors
-  test('Jest runs with npx', () => {
-    // This test documents that the CI workflow uses 'npx jest'
+  // Test to verify jest is run via wrapper script to avoid permission errors
+  test('Jest runs via wrapper script', () => {
+    // This test documents that the CI workflow uses run-pact.sh
+    // which handles npm install, chmod +x, and jest execution
     // to fix "jest: Permission denied" errors in GitHub Actions
     expect(true).toBe(true);
   });

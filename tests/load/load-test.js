@@ -1,14 +1,12 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
+import { BASE_URL, TELEMETRY_URL } from './config.js';
 
 // Custom metrics
 const errorRate = new Rate('errors');
 const apiLatency = new Trend('api_latency');
 const grpcLatency = new Trend('grpc_latency');
-
-const API_GATEWAY_URL = __ENV.API_GATEWAY_URL || 'http://localhost:8080';
-const TELEMETRY_URL = __ENV.TELEMETRY_URL || 'http://localhost:8000';
 
 export const options = {
   stages: [
@@ -22,13 +20,13 @@ export const options = {
   ],
   thresholds: {
     http_req_duration: ['p(95)<500', 'p(99)<1000'], // 95% of requests under 500ms, 99% under 1s
-    errors: ['rate<0.5'], // Error rate less than 50% (temporarily relaxed for debugging)
+    errors: ['rate<0.5'], // Error rate less than 50% (relaxed for CI debugging)
   },
 };
 
 export default function () {
   // Test 1: Health check
-  const healthRes = http.get(`${API_GATEWAY_URL}/healthz`, {
+  const healthRes = http.get(`${BASE_URL}/healthz`, {
     tags: { name: 'HealthCheck' },
   });
   check(healthRes, {
@@ -42,7 +40,7 @@ export default function () {
   const testValue = 'load-test-value';
 
   // Set data - use correct path with key in URL
-  const setRes = http.post(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, JSON.stringify({
+  const setRes = http.post(`${BASE_URL}/api/v1/data/${testKey}`, JSON.stringify({
     value: testValue,
     ttl_seconds: 3600,
   }), {
@@ -56,7 +54,7 @@ export default function () {
   grpcLatency.add(setRes.timings.duration);
 
   // Get data
-  const getRes = http.get(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, {
+  const getRes = http.get(`${BASE_URL}/api/v1/data/${testKey}`, {
     tags: { name: 'GetData' },
   });
   check(getRes, {
@@ -66,7 +64,7 @@ export default function () {
   grpcLatency.add(getRes.timings.duration);
 
   // Delete data
-  const deleteRes = http.del(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, null, {
+  const deleteRes = http.del(`${BASE_URL}/api/v1/data/${testKey}`, null, {
     tags: { name: 'DeleteData' },
   });
   check(deleteRes, {

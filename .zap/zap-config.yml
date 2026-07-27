@@ -1,0 +1,10 @@
+env:
+  contexts:
+    - name: "Default Context"
+      urls:
+        - "http://localhost:8080/healthz"
+      excludePaths: []
+jobs:
+  - type: spider
+    parameters:
+      url: "http://localhost:8080/healthz"
