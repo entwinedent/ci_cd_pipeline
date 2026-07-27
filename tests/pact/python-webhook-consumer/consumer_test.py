@@ -2,10 +2,6 @@ import pytest
 from pact import Pact
 import json
 
-# Pact configuration
-pact = Pact('python-telemetry', 'external-webhook')
-pact.start_service()
-
 def test_webhook_alert_success():
     """Test that webhook alert is sent successfully"""
     expected = {
@@ -18,6 +14,7 @@ def test_webhook_alert_success():
         'action': 'rollback'
     }
     
+    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('an anomaly alert webhook')
@@ -41,6 +38,7 @@ def test_webhook_alert_medium_severity():
         'action': 'monitor'
     }
     
+    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('a medium severity alert')
@@ -53,6 +51,7 @@ def test_webhook_alert_medium_severity():
 
 def test_webhook_failure_retry():
     """Test webhook failure and retry logic"""
+    pact = Pact('python-telemetry', 'external-webhook', log_level='DEBUG')
     (pact
      .given('webhook endpoint is temporarily unavailable')
      .upon_receiving('an alert during webhook failure')
@@ -62,10 +61,6 @@ def test_webhook_failure_retry():
     with pact:
         response = pact.post('/api/v1/alerts', json={'test': 'data'})
         assert response.status_code == 503
-
-def teardown_module():
-    """Cleanup after all tests"""
-    pact.stop_service()
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

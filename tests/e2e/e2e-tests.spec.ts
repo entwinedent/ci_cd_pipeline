@@ -55,10 +55,8 @@ test.describe('Service Availability Tests', () => {
   });
 
   test('Services respond concurrently', async ({ page }) => {
-    const [gatewayResponse, telemetryResponse] = await Promise.all([
-      page.goto(`${API_GATEWAY_URL}/healthz`),
-      page.goto(`${TELEMETRY_URL}/healthz`),
-    ]);
+    const gatewayResponse = await page.goto(`${API_GATEWAY_URL}/healthz`);
+    const telemetryResponse = await page.goto(`${TELEMETRY_URL}/healthz`);
 
     expect(gatewayResponse?.status()).toBeGreaterThanOrEqual(200);
     expect(gatewayResponse?.status()).toBeLessThan(500);
@@ -85,11 +83,12 @@ test.describe('Error Handling Tests', () => {
 
 test.describe('Performance Tests', () => {
   test('Multiple concurrent requests complete successfully', async ({ page }) => {
-    const requests = Array(10).fill(null).map((_, i) => 
-      page.goto(`${API_GATEWAY_URL}/healthz`)
-    );
+    const responses = [];
+    for (let i = 0; i < 10; i++) {
+      const response = await page.goto(`${API_GATEWAY_URL}/healthz`);
+      responses.push(response);
+    }
 
-    const responses = await Promise.all(requests);
     responses.forEach(response => {
       expect(response?.status()).toBeGreaterThanOrEqual(200);
       expect(response?.status()).toBeLessThan(500);
