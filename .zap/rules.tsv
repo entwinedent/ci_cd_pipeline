@@ -1,12 +1,12 @@
 # OWASP ZAP Rules Configuration
-# Format: rule_id\tseverity\tstatus
+# Format: rule_id	severity	status
 # Status: on, off, ignore, warn
 
 # Non-Storable Content - Expected behavior for health endpoints
-10049\tINFO\tignore
+10049	INFO	ignore
 
 # Cross-Domain Misconfiguration - Fixed with CORP header
-10098\tINFO\tignore
+10098	INFO	ignore
 
 # Sec-Fetch-Dest Header Missing - Client-side header, server cannot set
-90005\tINFO\tignore
+90005	INFO	ignore

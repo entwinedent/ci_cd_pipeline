@@ -206,6 +206,21 @@ jobs:
           curl -f http://localhost:8000/healthz || echo "python-telemetry not ready"
           curl -f http://localhost:8080/healthz || echo "go-api-gateway not ready"
         timeout-minutes: 5
+
+      - name: Wait for Services to be Ready
+        run: |
+          echo "Waiting for Go API Gateway..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/healthz | grep -q "200" || [ $(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz) -eq 200 ]; then
+              echo "Go API Gateway is up!"
+              exit 0
+            fi
+            echo "Attempt $i: Gateway not ready yet, sleeping..."
+            sleep 2
+          done
+          echo "Gateway failed to start in time!"
+          docker logs go-api-gateway
+          exit 1
         
       - name: Run load tests
         run: k6 run --out json=tests/load/results.json tests/load/load-test.js

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Installing local consumer dependencies..."
-npm install
+echo "Installing local consumer dependencies with scripts enabled..."
+npm install --foreground-scripts
 
 echo "Granting execution permissions to local binaries..."
-chmod +x ./node_modules/.bin/jest
+chmod -R +x ./node_modules/.bin/ || true
 
 echo "Running Pact contract tests..."
-./node_modules/.bin/jest
+npx jest --config pact.config.js

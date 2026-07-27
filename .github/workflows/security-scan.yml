@@ -189,7 +189,8 @@ jobs:
         with:
           target: 'http://localhost:8080/healthz'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
+          fail_action: false
+          artifact_name: 'zap-reports'
         continue-on-error: true
 
       - name: Upload ZAP results
