@@ -1,0 +1,136 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: api-tests.spec.ts >> API Gateway Health Checks >> GET /healthz should return healthy status
+- Location: api-tests.spec.ts:7:7
+
+# Error details
+
+```
+Error: apiRequestContext.get: socket hang up
+Call log:
+  - → GET http://localhost:8080/healthz
+    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36
+    - accept: */*
+    - accept-encoding: gzip,deflate,br
+
+```
+
+# Test source
+
+```ts
+  1   | import { test, expect } from '@playwright/test';
+  2   | 
+  3   | const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:8080';
+  4   | const TELEMETRY_URL = process.env.TELEMETRY_URL || 'http://localhost:8000';
+  5   | 
+  6   | test.describe('API Gateway Health Checks', () => {
+  7   |   test('GET /healthz should return healthy status', async ({ request }) => {
+> 8   |     const response = await request.get(`${API_GATEWAY_URL}/healthz`);
+      |                                    ^ Error: apiRequestContext.get: socket hang up
+  9   |     expect(response.status()).toBe(200);
+  10  |     const body = await response.json();
+  11  |     expect(body.status).toBe('healthy');
+  12  |   });
+  13  | 
+  14  |   test('GET /readyz should return ready status', async ({ request }) => {
+  15  |     const response = await request.get(`${API_GATEWAY_URL}/readyz`);
+  16  |     expect(response.status()).toBe(200);
+  17  |     const body = await response.json();
+  18  |     expect(body.status).toBe('ready');
+  19  |   });
+  20  | });
+  21  | 
+  22  | test.describe('Data Store API Operations', () => {
+  23  |   const testKey = `test-key-${Date.now()}`;
+  24  |   const testValue = Buffer.from('test-data-value');
+  25  | 
+  26  |   test('POST /api/v1/data should store data', async ({ request }) => {
+  27  |     const response = await request.post(`${API_GATEWAY_URL}/api/v1/data`, {
+  28  |       data: {
+  29  |         key: testKey,
+  30  |         value: testValue.toString('base64'),
+  31  |       },
+  32  |     });
+  33  |     expect(response.status()).toBe(201);
+  34  |     const body = await response.json();
+  35  |     expect(body.status).toBe('success');
+  36  |   });
+  37  | 
+  38  |   test('GET /api/v1/data/{key} should retrieve data', async ({ request }) => {
+  39  |     const response = await request.get(`${API_GATEWAY_URL}/api/v1/data/${testKey}`);
+  40  |     expect(response.status()).toBe(200);
+  41  |     const body = await response.json();
+  42  |     expect(body.key).toBe(testKey);
+  43  |   });
+  44  | 
+  45  |   test('DELETE /api/v1/data/{key} should delete data', async ({ request }) => {
+  46  |     const response = await request.delete(`${API_GATEWAY_URL}/api/v1/data/${testKey}`);
+  47  |     expect(response.status()).toBe(200);
+  48  |     const body = await response.json();
+  49  |     expect(body.status).toBe('success');
+  50  |   });
+  51  | });
+  52  | 
+  53  | test.describe('Telemetry Service Health Checks', () => {
+  54  |   test('GET /healthz should return healthy status', async ({ request }) => {
+  55  |     const response = await request.get(`${TELEMETRY_URL}/healthz`);
+  56  |     expect(response.status()).toBe(200);
+  57  |     const body = await response.json();
+  58  |     expect(body.status).toBe('healthy');
+  59  |   });
+  60  | 
+  61  |   test('GET /readyz should return ready status', async ({ request }) => {
+  62  |     const response = await request.get(`${TELEMETRY_URL}/readyz`);
+  63  |     expect(response.status()).toBe(200);
+  64  |     const body = await response.json();
+  65  |     expect(body.status).toBe('ready');
+  66  |   });
+  67  | });
+  68  | 
+  69  | test.describe('Telemetry Log Ingestion', () => {
+  70  |   test('POST /api/v1/logs should ingest logs successfully', async ({ request }) => {
+  71  |     const logEntry = {
+  72  |       service: 'test-service',
+  73  |       level: 'INFO',
+  74  |       message: 'Test log message',
+  75  |       timestamp: new Date().toISOString(),
+  76  |       metadata: {
+  77  |         test: true,
+  78  |       },
+  79  |     };
+  80  | 
+  81  |     const response = await request.post(`${TELEMETRY_URL}/api/v1/logs`, {
+  82  |       data: logEntry,
+  83  |     });
+  84  |     expect(response.status()).toBe(200);
+  85  |     const body = await response.json();
+  86  |     expect(body.status).toBe('success');
+  87  |   });
+  88  | });
+  89  | 
+  90  | test.describe('Telemetry Metrics Ingestion', () => {
+  91  |   test('POST /api/v1/metrics should ingest metrics successfully', async ({ request }) => {
+  92  |     const metricData = {
+  93  |       service: 'test-service',
+  94  |       metric_name: 'test_metric',
+  95  |       value: 42.5,
+  96  |       timestamp: new Date().toISOString(),
+  97  |       labels: {
+  98  |         environment: 'test',
+  99  |       },
+  100 |     };
+  101 | 
+  102 |     const response = await request.post(`${TELEMETRY_URL}/api/v1/metrics`, {
+  103 |       data: metricData,
+  104 |     });
+  105 |     expect(response.status()).toBe(200);
+  106 |     const body = await response.json();
+  107 |     expect(body.status).toBe('success');
+  108 |   });
+```

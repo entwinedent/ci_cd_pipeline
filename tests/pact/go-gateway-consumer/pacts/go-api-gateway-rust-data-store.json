@@ -4,14 +4,56 @@
   },
   "interactions": [
     {
-      "description": "a request to delete data",
-      "providerState": "data exists for key",
+      "description": "a health check request",
+      "providerState": "service is healthy",
       "request": {
+        "body": {
+          "key": "health"
+        },
         "headers": {
           "Content-Type": "application/json"
         },
-        "method": "DELETE",
-        "path": "/v1/data/test-key"
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "healthy": true,
+          "message": "Service is healthy"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to delete data",
+      "providerState": "data exists for key",
+      "request": {
+        "body": {
+          "key": "test-key"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
       },
       "response": {
         "body": {
@@ -23,6 +65,117 @@
         },
         "matchingRules": {
           "$.body.message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to delete data",
+      "providerState": "data exists for key",
+      "request": {
+        "body": {
+          "key": "test-key"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "message": "Value deleted successfully",
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          },
+          "$.body.value": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to delete data",
+      "providerState": "data exists for key",
+      "request": {
+        "body": {
+          "key": "test-key"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "message": "Value deleted successfully",
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          },
+          "$.body.value": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to delete data",
+      "providerState": "data exists for key",
+      "request": {
+        "body": {
+          "key": "test-key"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "message": "Value deleted successfully",
+          "success": true
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          },
+          "$.body.value": {
             "match": "type"
           }
         },
@@ -70,15 +223,49 @@
         },
         "status": 200
       }
+    },
+    {
+      "description": "a health check request",
+      "providerState": "service is healthy",
+      "request": {
+        "body": {
+          "key": "health"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.key": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/v1/data"
+      },
+      "response": {
+        "body": {
+          "healthy": true,
+          "message": "Service is healthy"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
     }
   ],
   "metadata": {
     "pact-js": {
-      "version": "10.4.1"
+      "version": "13.2.0"
     },
     "pactRust": {
-      "ffi": "0.4.0",
-      "models": "1.0.4"
+      "ffi": "0.4.22",
+      "models": "1.2.3"
     },
     "pactSpecification": {
       "version": "2.0.0"

@@ -229,7 +229,9 @@ jobs:
           TELEMETRY_URL: http://localhost:8000
 
       - name: Run spike test
-        run: k6 run --summary-export=tests/load/results/spike-summary.json tests/load/scenarios/spike-test.js
+        run: |
+          mkdir -p tests/load/results
+          k6 run --summary-export=tests/load/results/spike-summary.json tests/load/scenarios/spike-test.js
         env:
           API_GATEWAY_URL: http://localhost:8080
 
