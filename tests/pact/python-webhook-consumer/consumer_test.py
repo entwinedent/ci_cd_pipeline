@@ -1,9 +1,10 @@
 import pytest
-from pact import Consumer, Provider
+from pact import Pact
 import json
 
 # Pact configuration
-pact = Consumer('python-telemetry').has_pact_with(Provider('external-webhook'))
+pact = Pact('python-telemetry', 'external-webhook')
+pact.start_service()
 
 def test_webhook_alert_success():
     """Test that webhook alert is sent successfully"""
@@ -20,11 +21,11 @@ def test_webhook_alert_success():
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('an anomaly alert webhook')
-     .with_request('POST', '/api/v1/alerts')
+     .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact as provider:
-        response = provider.post('/api/v1/alerts', json=expected)
+    with pact:
+        response = pact.post('/api/v1/alerts', json=expected)
         assert response.status_code == 200
         assert response.json() == expected
 
@@ -43,11 +44,11 @@ def test_webhook_alert_medium_severity():
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('a medium severity alert')
-     .with_request('POST', '/api/v1/alerts')
+     .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact as provider:
-        response = provider.post('/api/v1/alerts', json=expected)
+    with pact:
+        response = pact.post('/api/v1/alerts', json=expected)
         assert response.status_code == 200
 
 def test_webhook_failure_retry():
@@ -55,12 +56,16 @@ def test_webhook_failure_retry():
     (pact
      .given('webhook endpoint is temporarily unavailable')
      .upon_receiving('an alert during webhook failure')
-     .with_request('POST', '/api/v1/alerts')
+     .with_request('POST', '/api/v1/alerts', body={'test': 'data'})
      .will_respond_with(503))
     
-    with pact as provider:
-        response = provider.post('/api/v1/alerts', json={'test': 'data'})
+    with pact:
+        response = pact.post('/api/v1/alerts', json={'test': 'data'})
         assert response.status_code == 503
+
+def teardown_module():
+    """Cleanup after all tests"""
+    pact.stop_service()
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
