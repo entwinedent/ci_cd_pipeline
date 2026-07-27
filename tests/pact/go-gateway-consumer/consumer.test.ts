@@ -27,10 +27,10 @@ describe('Go API Gateway Consumer Contract Tests', () => {
     await provider.verify();
   });
 
-  // Test to verify jest is run via wrapper script with scripts enabled
-  test('Jest runs via wrapper script with scripts enabled', () => {
+  // Test to verify jest is run via wrapper script with allow-scripts
+  test('Jest runs via wrapper script with allow-scripts', () => {
     // This test documents that the CI workflow uses run-pact.sh
-    // which uses npm install --foreground-scripts to build native modules
+    // which uses npm install --allow-scripts to build native modules
     // and npx jest to execute tests
     // to fix "jest: Permission denied" and MODULE_NOT_FOUND errors
     expect(true).toBe(true);

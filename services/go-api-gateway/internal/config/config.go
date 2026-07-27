@@ -14,12 +14,21 @@ type Config struct {
 
 // LoadConfig loads configuration from environment variables
 func LoadConfig() *Config {
+	dataStoreTarget := getEnv("DATA_STORE_TARGET", "localhost:50051")
+	// Ensure data store target has http:// prefix if not already present
+	if dataStoreTarget != "" && !hasProtocol(dataStoreTarget) {
+		dataStoreTarget = "http://" + dataStoreTarget
+	}
 	return &Config{
 		Port:            getEnv("PORT", "8080"),
-		DataStoreTarget: getEnv("DATA_STORE_TARGET", "localhost:50051"),
+		DataStoreTarget: dataStoreTarget,
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
 		FeatureFlagURL:  getEnv("FEATURE_FLAG_URL", ""),
 	}
+}
+
+func hasProtocol(url string) bool {
+	return len(url) >= 7 && (url[:7] == "http://" || url[:8] == "https://")
 }
 
 func getEnv(key, defaultValue string) string {
