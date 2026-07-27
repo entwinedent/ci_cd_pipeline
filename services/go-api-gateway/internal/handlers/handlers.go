@@ -31,6 +31,7 @@ func NewHTTPHandler(dataStore DataStoreClient) *HTTPHandler {
 
 // RegisterRoutes registers all HTTP routes
 func (h *HTTPHandler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/", h.RootHandler).Methods("GET")
 	router.HandleFunc("/healthz", h.HealthCheck).Methods("GET")
 	router.HandleFunc("/robots.txt", h.RobotsTxt).Methods("GET")
 	router.HandleFunc("/sitemap.xml", h.Sitemap).Methods("GET")
@@ -39,11 +40,28 @@ func (h *HTTPHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/api/v1/data/{key}", h.DeleteData).Methods("DELETE")
 }
 
+// RootHandler returns a simple response for the root path
+func (h *HTTPHandler) RootHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, private")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(map[string]string{
+		"status":  "active",
+		"message": "API Gateway Active",
+	}); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+	}
+}
+
 // HealthCheck returns the health status of the service
 func (h *HTTPHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
 	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, private")
 	healthy, err := h.dataStore.HealthCheck()
 	if err != nil {
@@ -65,6 +83,7 @@ func (h *HTTPHandler) RobotsTxt(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
 	w.Header().Set("Cache-Control", "public, max-age=3600")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("User-agent: *\nDisallow: /api/\n")); err != nil {
@@ -77,6 +96,7 @@ func (h *HTTPHandler) Sitemap(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
 	w.Header().Set("Cache-Control", "public, max-age=3600")
 	w.WriteHeader(http.StatusOK)
 	sitemap := `<?xml version="1.0" encoding="UTF-8"?>

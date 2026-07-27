@@ -151,7 +151,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: tests/e2e
-        run: npm ci --ignore-scripts
+        run: npm install
 
       - name: Install Playwright browsers
         working-directory: tests/e2e
@@ -203,13 +203,13 @@ jobs:
         timeout-minutes: 5
         
       - name: Run load tests
-        run: k6 run tests/load/load-test.js
+        run: k6 run --out json=tests/load/results.json tests/load/load-test.js
         env:
           API_GATEWAY_URL: http://localhost:8080
           TELEMETRY_URL: http://localhost:8000
           
       - name: Run spike test
-        run: k6 run tests/load/scenarios/spike-test.js
+        run: k6 run --out json=tests/load/spike-results.json tests/load/scenarios/spike-test.js
         env:
           API_GATEWAY_URL: http://localhost:8080
           
@@ -238,7 +238,9 @@ jobs:
         
       - name: Run Go gateway Pact tests
         working-directory: tests/pact/go-gateway-consumer
-        run: npx jest
+        run: |
+          chmod +x ./node_modules/.bin/jest
+          ./node_modules/.bin/jest
         
       - name: Set up Python
         uses: actions/setup-python@v5

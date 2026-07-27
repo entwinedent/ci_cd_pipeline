@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,6 +66,33 @@ func TestRobotsTxt(t *testing.T) {
 	}
 	if body != "User-agent: *\nDisallow: /api/\n" {
 		t.Errorf("Unexpected robots.txt content: %s", body)
+	}
+}
+
+func TestRootHandler(t *testing.T) {
+	mockClient := &MockDataStoreClient{healthy: true}
+	handler := NewHTTPHandler(mockClient)
+
+	req := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	handler.RootHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	contentType := w.Header().Get("Content-Type")
+	if contentType != "application/json" {
+		t.Errorf("Expected Content-Type application/json, got %s", contentType)
+	}
+
+	var response map[string]string
+	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+		t.Errorf("Failed to unmarshal response: %v", err)
+	}
+
+	if response["status"] != "active" {
+		t.Errorf("Expected status 'active', got %s", response["status"])
 	}
 }
 

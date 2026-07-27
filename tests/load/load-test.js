@@ -28,7 +28,9 @@ export const options = {
 
 export default function () {
   // Test 1: Health check
-  const healthRes = http.get(`${API_GATEWAY_URL}/healthz`);
+  const healthRes = http.get(`${API_GATEWAY_URL}/healthz`, {
+    tags: { name: 'HealthCheck' },
+  });
   check(healthRes, {
     'health check status 200': (r) => r.status === 200,
     'health check response time < 100ms': (r) => r.timings.duration < 100,
@@ -36,24 +38,27 @@ export default function () {
   apiLatency.add(healthRes.timings.duration);
 
   // Test 2: Data store operations
-  const testKey = `load-test-${__VU}-${Date.now()}`;
+  const testKey = `load-test-key`; // Use static key to reduce cardinality
   const testValue = 'load-test-value';
 
-  // Set data
-  const setRes = http.post(`${API_GATEWAY_URL}/api/v1/data`, JSON.stringify({
-    key: testKey,
+  // Set data - use correct path with key in URL
+  const setRes = http.post(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, JSON.stringify({
     value: testValue,
+    ttl_seconds: 3600,
   }), {
     headers: { 'Content-Type': 'application/json' },
+    tags: { name: 'SetData' },
   });
   check(setRes, {
-    'set data status 201': (r) => r.status === 201,
+    'set data status 200': (r) => r.status === 200,
     'set data response time < 200ms': (r) => r.timings.duration < 200,
   }) || errorRate.add(1);
   grpcLatency.add(setRes.timings.duration);
 
   // Get data
-  const getRes = http.get(`${API_GATEWAY_URL}/api/v1/data/${testKey}`);
+  const getRes = http.get(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, {
+    tags: { name: 'GetData' },
+  });
   check(getRes, {
     'get data status 200': (r) => r.status === 200,
     'get data response time < 200ms': (r) => r.timings.duration < 200,
@@ -61,7 +66,9 @@ export default function () {
   grpcLatency.add(getRes.timings.duration);
 
   // Delete data
-  const deleteRes = http.del(`${API_GATEWAY_URL}/api/v1/data/${testKey}`);
+  const deleteRes = http.del(`${API_GATEWAY_URL}/api/v1/data/${testKey}`, null, {
+    tags: { name: 'DeleteData' },
+  });
   check(deleteRes, {
     'delete data status 200': (r) => r.status === 200,
     'delete data response time < 200ms': (r) => r.timings.duration < 200,
@@ -76,6 +83,7 @@ export default function () {
     timestamp: new Date().toISOString(),
   }), {
     headers: { 'Content-Type': 'application/json' },
+    tags: { name: 'LogIngestion' },
   });
   check(logRes, {
     'log ingestion status 200': (r) => r.status === 200,
@@ -90,6 +98,7 @@ export default function () {
     timestamp: new Date().toISOString(),
   }), {
     headers: { 'Content-Type': 'application/json' },
+    tags: { name: 'MetricIngestion' },
   });
   check(metricRes, {
     'metric ingestion status 200': (r) => r.status === 200,
