@@ -1,6 +1,9 @@
 import pytest
-from pact import Pact
+from pact import Consumer, Provider
 import json
+
+# Pact configuration
+pact = Consumer('python-telemetry').has_pact_with(Provider('external-webhook'))
 
 def test_webhook_alert_success():
     """Test that webhook alert is sent successfully"""
@@ -14,15 +17,14 @@ def test_webhook_alert_success():
         'action': 'rollback'
     }
     
-    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('an anomaly alert webhook')
      .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact:
-        response = pact.post('/api/v1/alerts', json=expected)
+    with pact as provider:
+        response = provider.post('/api/v1/alerts', json=expected)
         assert response.status_code == 200
         assert response.json() == expected
 
@@ -38,28 +40,26 @@ def test_webhook_alert_medium_severity():
         'action': 'monitor'
     }
     
-    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is available')
      .upon_receiving('a medium severity alert')
      .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact:
-        response = pact.post('/api/v1/alerts', json=expected)
+    with pact as provider:
+        response = provider.post('/api/v1/alerts', json=expected)
         assert response.status_code == 200
 
 def test_webhook_failure_retry():
     """Test webhook failure and retry logic"""
-    pact = Pact('python-telemetry', 'external-webhook')
     (pact
      .given('webhook endpoint is temporarily unavailable')
      .upon_receiving('an alert during webhook failure')
      .with_request('POST', '/api/v1/alerts', body={'test': 'data'})
      .will_respond_with(503))
     
-    with pact:
-        response = pact.post('/api/v1/alerts', json={'test': 'data'})
+    with pact as provider:
+        response = provider.post('/api/v1/alerts', json={'test': 'data'})
         assert response.status_code == 503
 
 if __name__ == '__main__':
