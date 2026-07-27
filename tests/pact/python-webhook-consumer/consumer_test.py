@@ -1,4 +1,5 @@
 import pytest
+import requests
 from pact import Consumer, Provider
 import json
 
@@ -32,8 +33,8 @@ def test_webhook_alert_success(pact_mock_service):
      .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact_mock_service as provider:
-        response = provider.post('/api/v1/alerts', json=expected)
+    with pact_mock_service:
+        response = requests.post(f"{pact_mock_service.uri}/api/v1/alerts", json=expected)
         assert response.status_code == 200
         assert response.json() == expected
 
@@ -55,8 +56,8 @@ def test_webhook_alert_medium_severity(pact_mock_service):
      .with_request('POST', '/api/v1/alerts', body=expected)
      .will_respond_with(200, body=expected))
     
-    with pact_mock_service as provider:
-        response = provider.post('/api/v1/alerts', json=expected)
+    with pact_mock_service:
+        response = requests.post(f"{pact_mock_service.uri}/api/v1/alerts", json=expected)
         assert response.status_code == 200
 
 def test_webhook_failure_retry(pact_mock_service):
@@ -67,8 +68,8 @@ def test_webhook_failure_retry(pact_mock_service):
      .with_request('POST', '/api/v1/alerts', body={'test': 'data'})
      .will_respond_with(503))
     
-    with pact_mock_service as provider:
-        response = provider.post('/api/v1/alerts', json={'test': 'data'})
+    with pact_mock_service:
+        response = requests.post(f"{pact_mock_service.uri}/api/v1/alerts", json={'test': 'data'})
         assert response.status_code == 503
 
 if __name__ == '__main__':
