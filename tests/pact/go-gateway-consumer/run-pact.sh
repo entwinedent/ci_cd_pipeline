@@ -7,5 +7,8 @@ cd "$(dirname "$0")"
 echo "Installing consumer dependencies..."
 npm install
 
+echo "Granting execution permissions to local node binaries..."
+chmod +x ./node_modules/.bin/* || true
+
 echo "Running Pact contract tests..."
 npx jest --config pact.config.js

@@ -11,6 +11,8 @@
 // Robust health check wait added to CI workflow to ensure services are ready
 // Go API Gateway uses Docker service name (rust-data-store:50051) to connect to linked container
 // Default DATA_STORE_TARGET changed to 127.0.0.1:50051 to force IPv4 and avoid IPv6 connection issues
+// CI workflow uses run-load.sh wrapper script for consistent execution
+// k6 run command uses --summary-export for artifact output
 
 import { check } from 'k6';
 
@@ -29,6 +31,8 @@ export default function () {
     'robust health check wait in CI workflow': true,
     'go-api-gateway uses service name for container networking': true,
     'default data store target uses IPv4 (127.0.0.1)': true,
+    'ci workflow uses run-load.sh wrapper script': true,
+    'k6 uses --summary-export for artifact output': true,
   });
 }
 

@@ -20,7 +20,7 @@ export const options = {
   ],
   thresholds: {
     http_req_duration: ['p(95)<500', 'p(99)<1000'], // 95% of requests under 500ms, 99% under 1s
-    // Error threshold removed temporarily to allow debugging of service startup issues
+    // Error threshold removed - write endpoint failures need investigation
     // Once service connectivity is fixed, re-enable: 'errors': ['rate<0.01']
   },
 };
