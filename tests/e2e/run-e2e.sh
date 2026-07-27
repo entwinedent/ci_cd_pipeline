@@ -5,7 +5,8 @@ echo "Navigating to E2E directory..."
 cd "$(dirname "$0")"
 
 echo "Installing Playwright dependencies..."
-npm install --force
+rm -rf node_modules package-lock.json
+npm install
 
 echo "Ensuring local binaries have correct execution permissions..."
 chmod +x ./node_modules/.bin/* || true
