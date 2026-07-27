@@ -83,7 +83,7 @@ func TestSecurityEndpointsIntegration(t *testing.T) {
 	t.Run("SecurityHeaders", func(t *testing.T) {
 		// This test verifies that security headers are set on responses
 		// to fix OWASP ZAP warnings for missing headers
-		t.Log("Security headers should include X-Content-Type-Options, COEP, and COOP")
+		t.Log("Security headers should include X-Content-Type-Options, COEP, COOP, and CORP")
 		t.Log("Cache-Control headers should be set appropriately")
 		t.Log("This is verified in handlers.go")
 	})

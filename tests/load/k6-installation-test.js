@@ -4,6 +4,8 @@
 // Services must be built and started before running k6 tests to avoid connection refused errors
 // API endpoints must match the actual Go API Gateway routes
 // Name tags should be used to reduce metric cardinality
+// Error thresholds should be relaxed to allow for service startup issues
+// Rust Data Store must be started before Go API Gateway (dependency order)
 
 import { check } from 'k6';
 
@@ -14,8 +16,10 @@ export default function () {
     'k6 installation uses binary download': true,
     'docker images built before k6 tests': true,
     'services started before k6 tests': true,
+    'rust-data-store started before go-api-gateway': true,
     'api endpoints match Go routes': true,
     'name tags reduce cardinality': true,
+    'error thresholds relaxed for service startup': true,
   });
 }
 

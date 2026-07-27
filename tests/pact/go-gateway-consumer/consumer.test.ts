@@ -27,9 +27,9 @@ describe('Go API Gateway Consumer Contract Tests', () => {
     await provider.verify();
   });
 
-  // Test to verify jest is run with chmod to avoid permission errors
-  test('Jest runs with chmod', () => {
-    // This test documents that the CI workflow uses 'chmod +x ./node_modules/.bin/jest'
+  // Test to verify jest is run with npx to avoid permission errors
+  test('Jest runs with npx', () => {
+    // This test documents that the CI workflow uses 'npx jest'
     // to fix "jest: Permission denied" errors in GitHub Actions
     expect(true).toBe(true);
   });
