@@ -12,7 +12,7 @@
 # Error details
 
 ```
-Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:8080/healthz
+Error: page.goto: net::ERR_SOCKET_NOT_CONNECTED at http://localhost:8080/healthz
 Call log:
   - navigating to "http://localhost:8080/healthz", waiting until "load"
 
@@ -69,7 +69,7 @@ Call log:
   46  | test.describe('Service Availability Tests', () => {
   47  |   test('API Gateway is reachable from browser', async ({ page }) => {
 > 48  |     const response = await page.goto(`${API_GATEWAY_URL}/healthz`);
-      |                                 ^ Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:8080/healthz
+      |                                 ^ Error: page.goto: net::ERR_SOCKET_NOT_CONNECTED at http://localhost:8080/healthz
   49  |     expect(response?.status()).toBe(200);
   50  |   });
   51  | 

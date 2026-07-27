@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "$0")"
 
 echo "Installing consumer dependencies..."
-npm install
+npm install --force
 
 echo "Granting execution permissions to local node binaries..."
 chmod +x ./node_modules/.bin/* || true
