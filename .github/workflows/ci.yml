@@ -149,6 +149,58 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Build Docker images
+        run: |
+          docker build -t go-api-gateway:test services/go-api-gateway
+          docker build -t rust-data-store:test services/rust-data-store
+          docker build -t python-telemetry:test services/python-telemetry
+        timeout-minutes: 10
+
+      - name: Start services
+        run: |
+          docker run -d --name rust-data-store -p 50051:50051 rust-data-store:test
+          docker run -d --name python-telemetry -p 8000:8000 python-telemetry:test
+          docker run -d --name go-api-gateway -p 8080:8080 --link rust-data-store:rust-data-store -e DATA_STORE_TARGET=rust-data-store:50051 go-api-gateway:test
+          echo "Waiting for services to start..."
+          sleep 15
+          echo "Checking service health..."
+          docker ps
+          echo "--- Rust Data Store logs ---"
+          docker logs rust-data-store || echo "No logs for rust-data-store"
+          echo "--- Python Telemetry logs ---"
+          docker logs python-telemetry || echo "No logs for python-telemetry"
+          echo "--- Go API Gateway logs ---"
+          docker logs go-api-gateway || echo "No logs for go-api-gateway"
+          echo "--- Testing endpoints ---"
+          curl -f http://localhost:8000/healthz || echo "python-telemetry not ready"
+          curl -f http://localhost:8080/healthz || echo "go-api-gateway not ready"
+        timeout-minutes: 5
+
+      - name: Wait for Services to be Ready
+        run: |
+          echo "Waiting for Go API Gateway..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/healthz | grep -q "200" || [ $(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz) -eq 200 ]; then
+              echo "Go API Gateway is ready"
+              break
+            fi
+            echo "Attempt $i: Go API Gateway not ready yet"
+            sleep 2
+          done
+          
+          echo "Waiting for Python Telemetry..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/healthz | grep -q "200" || [ $(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/healthz) -eq 200 ]; then
+              echo "Python Telemetry is ready"
+              break
+            fi
+            echo "Attempt $i: Python Telemetry not ready yet"
+            sleep 2
+          done
+          
+          echo "Services are ready"
+        timeout-minutes: 2
+
       - name: Run Playwright tests
         working-directory: tests/e2e
         run: |
