@@ -2,11 +2,11 @@
 
 ## Required Screenshots
 
-### 1. GitHub Actions Matrix (`github-actions-matrix.png`)
+### 1. GitHub Actions Matrix (`resume screenshot 1.png`)
 **What to capture:**
 - GitHub Actions workflow run page showing parallel jobs
 - All jobs passing (green checkmarks)
-- Job names visible: Go Tests, Rust Tests, Python Tests, Playwright E2E, Pact Contracts, k6 Performance
+- Job names visible: Go Tests, Rust Tests, Python Tests, Playwright E2E, Pact Contracts, k6 Performance, OWASP ZAP, Phylum Supply Chain, Cosign Signing
 
 **How to capture:**
 1. Create a PR or push to trigger CI/CD pipeline
@@ -15,11 +15,13 @@
 4. Take screenshot of the jobs overview page
 
 **Expected content:**
-- Green checkmarks for all jobs
+- Green checkmarks for all 23 jobs
 - Job execution times visible
 - Matrix strategy visible (if applicable)
 
-### 2. Security Scan Results (`security-scan-results.png`)
+**Status:** ✅ Captured - Located in `../images/resume screenshot 1.png`
+
+### 2. Security Scan Results (`resume screenshot 3.png`)
 **What to capture:**
 - Security scanning workflow results
 - Gitleaks secret scan output
@@ -38,7 +40,29 @@
 - Security scan summary with pass/fail status
 - SBOM generation confirmation
 
-### 3. FinOps PR Comment (`finops-pr-comment.png`)
+**Status:** ✅ Captured - Located in `../images/resume screenshot 3.png`
+
+### 3. Pipeline Execution Detail (`resume screenshot 2.png`)
+**What to capture:**
+- Detailed pipeline execution showing contract testing
+- Dynamic security scanning across Go, Rust, Python
+- Load testing and performance metrics
+- Supply chain security gates
+
+**How to capture:**
+1. Navigate to CI Pipeline workflow run
+2. Click on individual job logs
+3. Capture the execution detail view
+
+**Expected content:**
+- Contract test results (Pact)
+- E2E test results (Playwright)
+- Load test results (k6)
+- Security scan results
+
+**Status:** ✅ Captured - Located in `../images/resume screenshot 2.png`
+
+### 4. FinOps PR Comment (`finops-pr-comment.png`)
 **What to capture:**
 - Automated PR comment from FinOps gate
 - Cost delta analysis showing monthly cost changes
@@ -56,3 +80,5 @@
 - Monthly cost delta
 - Percentage increase
 - Approval status (requires approval or within thresholds)
+
+**Status:** ⏳ Pending - Not yet captured

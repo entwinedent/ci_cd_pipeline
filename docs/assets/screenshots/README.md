@@ -26,19 +26,28 @@ See `deployment-guide.md` for installation instructions and deployment scripts.
 
 **Required Screenshots:**
 
-1. **Green CI/CD Pipeline Matrix** (`ci-cd-security/github-actions-matrix.png`)
+1. **Green CI/CD Pipeline Matrix** (`images/resume screenshot 1.png`) ✅
    - Screenshot of a passing PR build showing parallel jobs
-   - Include: Go/Rust/Python tests, Playwright API/E2E, Pact contracts, k6 performance
-   - Capture: GitHub Actions workflow run page with all jobs passing
+   - Include: Go/Rust/Python tests, Playwright API/E2E, Pact contracts, k6 performance, OWASP ZAP, Phylum supply chain, Cosign signing
+   - Capture: GitHub Actions workflow run page with all 23 jobs passing
+   - **Status:** Captured and integrated into main README
 
-2. **Supply Chain Security Report** (`ci-cd-security/security-scan-results.png`)
+2. **Supply Chain Security Report** (`images/resume screenshot 3.png`) ✅
    - Visual outputs of Gitleaks, Trivy container CVE scans, Snyk dependency checks
    - Include: Cosign image signing verification
    - Capture: Security scan workflow results page
+   - **Status:** Captured and integrated into main README
 
-3. **FinOps Cost Diff Comment** (`ci-cd-security/finops-pr-comment.png`)
+3. **Pipeline Execution Detail** (`images/resume screenshot 2.png`) ✅
+   - Detailed view of contract testing, dynamic security scanning, and load testing
+   - Include: Pact contract tests, Playwright E2E, k6 performance across Go, Rust, Python
+   - Capture: GitHub Actions job execution detail view
+   - **Status:** Captured and integrated into main README
+
+4. **FinOps Cost Diff Comment** (`ci-cd-security/finops-pr-comment.png`) ⏳
    - Automated PR comment from Infracost/Kubecost showing predicted monthly cost deltas
    - Capture: GitHub PR comment with cost analysis before merging
+   - **Status:** Not yet captured
 
 ### B. GitOps & Progressive Delivery
 

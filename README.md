@@ -9,6 +9,19 @@
 
 A production-grade, enterprise CI/CD pipeline featuring multi-region disaster recovery, shift-left FinOps, GitOps, multi-language microservices (Go, Rust, Python), SPIFFE/SPIRE zero-trust identity, and progressive delivery.
 
+## 📸 CI/CD Pipeline Showcase
+
+### 23-Stage Automated Pipeline - All Jobs Passing
+
+![Resume Screenshot 1](docs/assets/screenshots/images/resume%20screenshot%201.png)
+*GitHub Actions CI Pipeline: 23 parallel jobs including Pact contract tests, Playwright E2E, mutation testing, OWASP ZAP, Phylum supply chain gates, and Cosign image signing*
+
+![Resume Screenshot 2](docs/assets/screenshots/images/resume%20screenshot%202.png)
+*Pipeline Execution Detail: Contract testing, dynamic security scanning, and load testing across Go, Rust, and Python microservices*
+
+![Resume Screenshot 3](docs/assets/screenshots/images/resume%20screenshot%203.png)
+*Supply Chain Security: Container image signing with Cosign and dependency verification with Phylum/Snyk integration*
+
 ## 🏗️ Architecture Diagram
 
 ```mermaid
@@ -87,16 +100,13 @@ graph TB
 
 **Automated Workflows & Supply Chain Security**
 
-![CI Pipeline Matrix](docs/assets/screenshots/images/CI pipeline.png)
+![CI Pipeline Matrix](docs/assets/screenshots/images/resume%20screenshot%201.png)
 *GitHub Actions CI Pipeline: Parallel test matrix with unit, integration, and E2E test automation*
 
-![Security Scan Results](docs/assets/screenshots/images/security scan results github actions.png)
+![Security Scan Results](docs/assets/screenshots/images/resume%20screenshot%203.png)
 *Supply Chain Security: Dependency analysis and vulnerability scanning with Phylum/Snyk integration*
 
-![FinOps PR Comment](docs/assets/screenshots/images/FinopsPR.png)
-*Shift-Left FinOps: Automated cost diff estimation in PR comments using Infracost/Kubecost*
-
-![Cosign Image Verification](docs/assets/screenshots/images/cosign verification.png)
+![Cosign Image Verification](docs/assets/screenshots/images/resume%20screenshot%203.png)
 *Container Image Signing: Cosign cryptographic signature verification for supply chain security*
 
 ### 🎯 Advanced Features (Roadmap)
