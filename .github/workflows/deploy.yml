@@ -29,7 +29,7 @@ jobs:
           
       - name: Extract metadata for Go
         id: meta-go
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}/go-api-gateway
           
@@ -45,7 +45,7 @@ jobs:
           
       - name: Extract metadata for Rust
         id: meta-rust
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}/rust-data-store
           
@@ -61,7 +61,7 @@ jobs:
           
       - name: Extract metadata for Python
         id: meta-python
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}/python-telemetry
           
