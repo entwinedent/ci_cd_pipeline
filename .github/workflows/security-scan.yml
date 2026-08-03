@@ -48,7 +48,7 @@ jobs:
           output: 'trivy-go-results.sarif'
           
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-go-results.sarif'
@@ -65,7 +65,7 @@ jobs:
         timeout-minutes: 5
           
       - name: Upload Trivy Rust results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-rust-results.sarif'
           
@@ -79,7 +79,7 @@ jobs:
         timeout-minutes: 5
           
       - name: Upload Trivy Python results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-python-results.sarif'
