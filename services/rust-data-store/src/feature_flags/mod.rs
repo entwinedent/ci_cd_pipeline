@@ -103,3 +103,43 @@ pub const FLAG_RATE_LIMITING: &str = "rate_limiting";
 
 pub mod unleash;
 pub mod launchdarkly;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_launchdarkly_provider_structure() {
+        let config = LaunchDarklyConfig {
+            sdk_key: "test-sdk-key".to_string(),
+            app_name: "test-app".to_string(),
+            environment: "development".to_string(),
+        };
+        let provider = launchdarkly::LaunchDarklyProvider::new(config);
+        assert!(provider.is_ok());
+    }
+
+    #[test]
+    fn test_launchdarkly_provider_validation() {
+        let config = LaunchDarklyConfig {
+            sdk_key: "".to_string(),
+            app_name: "test-app".to_string(),
+            environment: "development".to_string(),
+        };
+        let provider = launchdarkly::LaunchDarklyProvider::new(config);
+        assert!(provider.is_err());
+    }
+
+    #[test]
+    fn test_config_default() {
+        let config = Config::default();
+        assert!(matches!(config.provider, ProviderType::Unleash));
+    }
+
+    #[test]
+    fn test_provider_type_parsing() {
+        assert_eq!("unleash".parse::<ProviderType>(), Ok(ProviderType::Unleash));
+        assert_eq!("launchdarkly".parse::<ProviderType>(), Ok(ProviderType::LaunchDarkly));
+        assert!("unknown".parse::<ProviderType>().is_err());
+    }
+}

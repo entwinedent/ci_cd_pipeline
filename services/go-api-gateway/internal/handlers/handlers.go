@@ -134,9 +134,13 @@ func (h *HTTPHandler) ReadinessCheck(w http.ResponseWriter, r *http.Request) {
 	healthy, err := h.dataStore.HealthCheck()
 	if err != nil || !healthy {
 		w.WriteHeader(http.StatusServiceUnavailable)
+		errorMsg := "service unavailable"
+		if err != nil {
+			errorMsg = err.Error()
+		}
 		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"ready": false,
-			"error": err.Error(),
+			"error": errorMsg,
 		}); err != nil {
 			log.Printf("Failed to encode response: %v", err)
 		}
@@ -171,7 +175,7 @@ func (h *HTTPHandler) SetData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Value      []byte `json:"value"`
+		Value      string `json:"value"`
 		TTLSeconds int64  `json:"ttl_seconds"`
 	}
 
@@ -186,7 +190,7 @@ func (h *HTTPHandler) SetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	success, err := h.dataStore.Set(key, req.Value, req.TTLSeconds)
+	success, err := h.dataStore.Set(key, []byte(req.Value), req.TTLSeconds)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		if err := json.NewEncoder(w).Encode(map[string]interface{}{

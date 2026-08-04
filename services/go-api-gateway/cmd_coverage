@@ -1,0 +1,11 @@
+mode: set
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:27.13,32.16 3 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:32.16,34.3 1 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:35.2,42.12 4 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:42.12,44.91 2 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:44.91,46.4 1 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:50.2,58.56 7 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:58.56,60.3 1 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:62.2,62.30 1 0
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:65.86,82.2 5 1
+github.com/username/ci-cd-pipeline/go-api-gateway/cmd/main.go:84.32,107.2 13 1

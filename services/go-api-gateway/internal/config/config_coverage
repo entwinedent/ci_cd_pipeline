@@ -1,0 +1,8 @@
+mode: set
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:16.27,19.60 2 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:19.60,21.3 1 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:22.2,27.3 1 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:30.35,32.2 1 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:34.46,35.42 1 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:35.42,37.3 1 1
+github.com/username/ci-cd-pipeline/go-api-gateway/internal/config/config.go:38.2,38.21 1 1

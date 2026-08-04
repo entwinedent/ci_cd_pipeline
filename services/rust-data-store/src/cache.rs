@@ -117,3 +117,79 @@ impl InMemoryCache {
         metrics.iter().cloned().collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_set_and_get() {
+        let cache = InMemoryCache::new();
+        cache.set("test_key".to_string(), b"test_value".to_vec(), None);
+        
+        let result = cache.get("test_key");
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), b"test_value");
+    }
+
+    #[test]
+    fn test_get_nonexistent_key() {
+        let cache = InMemoryCache::new();
+        let result = cache.get("nonexistent");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_delete_existing_key() {
+        let cache = InMemoryCache::new();
+        cache.set("test_key".to_string(), b"test_value".to_vec(), None);
+        
+        let deleted = cache.delete("test_key");
+        assert!(deleted);
+        
+        let result = cache.get("test_key");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_delete_nonexistent_key() {
+        let cache = InMemoryCache::new();
+        let deleted = cache.delete("nonexistent");
+        assert!(!deleted);
+    }
+
+    #[test]
+    fn test_ttl_expiration() {
+        let cache = InMemoryCache::new();
+        cache.set("test_key".to_string(), b"test_value".to_vec(), Some(1));
+        
+        // Should be available immediately
+        let result = cache.get("test_key");
+        assert!(result.is_some());
+        
+        // Wait for expiration
+        std::thread::sleep(std::time::Duration::from_secs(2));
+        
+        let result = cache.get("test_key");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_multiple_operations() {
+        let cache = InMemoryCache::new();
+        
+        cache.set("key1".to_string(), b"value1".to_vec(), None);
+        cache.set("key2".to_string(), b"value2".to_vec(), None);
+        cache.set("key3".to_string(), b"value3".to_vec(), None);
+        
+        assert_eq!(cache.get("key1"), Some(b"value1".to_vec()));
+        assert_eq!(cache.get("key2"), Some(b"value2".to_vec()));
+        assert_eq!(cache.get("key3"), Some(b"value3".to_vec()));
+        
+        cache.delete("key2");
+        
+        assert_eq!(cache.get("key1"), Some(b"value1".to_vec()));
+        assert_eq!(cache.get("key2"), None);
+        assert_eq!(cache.get("key3"), Some(b"value3".to_vec()));
+    }
+}

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Mock data store server for testing
+  mock-data-store:
+    build:
+      context: .
+      dockerfile: Dockerfile.mock
+    ports:
+      - "50051:50051"
+    networks:
+      - test-network
+
+  # Test runner for unit tests
+  test-runner:
+    image: golang:1.22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - DATA_STORE_TARGET=http://mock-data-store:50051
+    depends_on:
+      - mock-data-store
+    networks:
+      - test-network
+    command: sh -c "sleep 2 && go test ./... -v -cover -short"
+
+  # Test runner for integration tests
+  integration-test-runner:
+    image: golang:1.22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - DATA_STORE_TARGET=http://mock-data-store:50051
+    depends_on:
+      - mock-data-store
+    networks:
+      - test-network
+    command: sh -c "sleep 2 && go test ./... -v -cover -tags=integration"
+
+networks:
+  test-network:
+    driver: bridge

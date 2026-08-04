@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -25,12 +26,18 @@ type Server struct {
 }
 
 func main() {
+	if err := Run(); err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+}
+
+func Run() error {
 	cfg := config.LoadConfig()
 
 	// Initialize gRPC client
 	dataStoreClient, err := grpc.NewDataStoreClient(cfg.DataStoreTarget)
 	if err != nil {
-		log.Fatalf("Failed to connect to data store: %v", err)
+		return fmt.Errorf("failed to connect to data store: %w", err)
 	}
 	defer dataStoreClient.Close()
 
@@ -39,27 +46,34 @@ func main() {
 	server := NewServer(cfg, dataStoreClient)
 
 	// Start server in a goroutine
+	serverErr := make(chan error, 1)
 	go func() {
 		log.Printf("Starting API Gateway on port %s", cfg.Port)
 		if err := server.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server failed to start: %v", err)
+			serverErr <- fmt.Errorf("server failed to start: %w", err)
 		}
 	}()
 
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
 
-	log.Println("Shutting down server...")
+	select {
+	case <-quit:
+		log.Println("Shutting down server...")
+	case err := <-serverErr:
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.httpServer.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		return fmt.Errorf("server forced to shutdown: %w", err)
 	}
 
 	log.Println("Server exited")
+	return nil
 }
 
 func NewServer(cfg *config.Config, dataStoreClient handlers.DataStoreClient) *Server {

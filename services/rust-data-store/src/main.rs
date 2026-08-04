@@ -13,21 +13,21 @@ use tower_http::cors::CorsLayer;
 mod cache;
 
 #[derive(Clone)]
-struct AppState {
-    cache: Arc<cache::InMemoryCache>,
+pub struct AppState {
+    pub cache: Arc<cache::InMemoryCache>,
 }
 
-#[derive(Deserialize)]
-struct SetValue {
-    value: String,
-    ttl_seconds: Option<i64>,
+#[derive(Deserialize, Serialize)]
+pub struct SetValue {
+    pub value: String,
+    pub ttl_seconds: Option<i64>,
 }
 
-#[derive(Serialize)]
-struct Response {
-    success: bool,
-    message: String,
-    value: Option<String>,
+#[derive(Serialize, Deserialize)]
+pub struct Response {
+    pub success: bool,
+    pub message: String,
+    pub value: Option<String>,
 }
 
 #[tokio::main]
